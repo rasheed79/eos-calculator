@@ -1,20 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 
-// Design System: Government/HR — Navy + Blue (WCAG AAA)
-const _cPrimary    = Color(0xFF0F172A);
-const _cSecondary  = Color(0xFF334155);
-const _cCTA        = Color(0xFF0369A1);
-const _cBackground = Color(0xFFF8FAFC);
-const _cText       = Color(0xFF020617);
-const _cMuted      = Color(0xFF64748B);
-const _cBorder     = Color(0xFFCBD5E1);
-const _cSurface    = Color(0xFFFFFFFF);
-const _cResultBg   = Color(0xFFEFF6FF);
-const _cResultBorder = Color(0xFFBFDBFE);
+// ui-ux-pro-max: Financial Dashboard + Trust & Authority
+// Primary: #0F172A | CTA: #0369A1 | Profit: #22C55E | BG: #F8FAFC
+const _navy      = Color(0xFF0F172A);
+const _navyLight = Color(0xFF1E3A5F);
+const _blue      = Color(0xFF0369A1);
+const _blueLight = Color(0xFFEFF6FF);
+const _green     = Color(0xFF16A34A);
+const _greenBg   = Color(0xFFF0FDF4);
+const _greenBorder = Color(0xFFBBF7D0);
+const _bg        = Color(0xFFF8FAFC);
+const _surface   = Color(0xFFFFFFFF);
+const _text      = Color(0xFF0F172A);
+const _muted     = Color(0xFF64748B);
+const _border    = Color(0xFFE2E8F0);
+const _inputBg   = Color(0xFFF8FAFC);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,40 +37,13 @@ class EndOfServiceApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        fontFamily: 'Cairo',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: _cCTA,
-          primary: _cCTA,
-          secondary: _cSecondary,
-          surface: _cSurface,
-          onSurface: _cText,
+          seedColor: _blue,
+          primary: _blue,
+          surface: _surface,
         ),
-        scaffoldBackgroundColor: _cBackground,
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: _cSurface,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _cBorder),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _cBorder),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _cCTA, width: 2),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _cCTA,
-            foregroundColor: Colors.white,
-            minimumSize: const Size.fromHeight(52),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: 0.3),
-          ),
-        ),
+        scaffoldBackgroundColor: _bg,
       ),
       localizationsDelegates: const [
         GlobalCupertinoLocalizations.delegate,
@@ -81,32 +59,44 @@ class EndOfServiceApp extends StatelessWidget {
 
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
-
   @override
   State<CalculatorScreen> createState() => _CalculatorScreenState();
 }
 
-class _CalculatorScreenState extends State<CalculatorScreen> {
-  final _salaryController = TextEditingController();
-  final _yearsController  = TextEditingController();
-  final _monthsController = TextEditingController();
+class _CalculatorScreenState extends State<CalculatorScreen>
+    with SingleTickerProviderStateMixin {
+  final _formKey    = GlobalKey<FormState>();
+  final _salaryCtr  = TextEditingController();
+  final _yearsCtr   = TextEditingController();
+  final _monthsCtr  = TextEditingController();
 
-  String _terminationReason = 'termination';
+  String  _reason   = 'termination';
   double? _result;
+  double? _baseReward;
+  double  _totalYears = 0;
 
-  BannerAd?      _bannerAd;
+  BannerAd?       _bannerAd;
   InterstitialAd? _interstitialAd;
   bool _isBannerLoaded = false;
+
+  late AnimationController _animCtrl;
+  late Animation<double>   _fadeAnim;
+  late Animation<Offset>   _slideAnim;
 
   @override
   void initState() {
     super.initState();
-    _loadBanner();
-    _loadInterstitial();
+    _animCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _fadeAnim  = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
+    if (!kIsWeb) {
+      _loadBanner();
+      _loadInterstitial();
+    }
   }
 
   void _loadBanner() {
-    if (kIsWeb) return;
     _bannerAd = BannerAd(
       adUnitId: 'ca-app-pub-9928258270334822/3089442375',
       size: AdSize.banner,
@@ -119,29 +109,25 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   void _loadInterstitial() {
-    if (kIsWeb) return;
     InterstitialAd.load(
       adUnitId: 'ca-app-pub-9928258270334822/1975350272',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded:      (ad) => _interstitialAd = ad,
-        onAdFailedToLoad: (_) => _interstitialAd = null,
+        onAdLoaded:       (ad) => _interstitialAd = ad,
+        onAdFailedToLoad: (_)  => _interstitialAd = null,
       ),
     );
   }
 
-  void _calculate() {
-    if (_interstitialAd != null) {
+  void _onCalculate() {
+    if (!_formKey.currentState!.validate()) return;
+    if (_interstitialAd != null && !kIsWeb) {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
-          ad.dispose();
-          _loadInterstitial();
-          _performCalculation();
+          ad.dispose(); _loadInterstitial(); _performCalculation();
         },
         onAdFailedToShowFullScreenContent: (ad, _) {
-          ad.dispose();
-          _loadInterstitial();
-          _performCalculation();
+          ad.dispose(); _loadInterstitial(); _performCalculation();
         },
       );
       _interstitialAd!.show();
@@ -151,39 +137,36 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   void _performCalculation() {
-    final double salary = double.tryParse(_salaryController.text) ?? 0;
-    final int    years  = int.tryParse(_yearsController.text)  ?? 0;
-    final int    months = int.tryParse(_monthsController.text) ?? 0;
+    final salary = double.parse(_salaryCtr.text);
+    final years  = int.parse(_yearsCtr.text.isEmpty  ? '0' : _yearsCtr.text);
+    final months = int.parse(_monthsCtr.text.isEmpty ? '0' : _monthsCtr.text);
+    final total  = years + (months / 12.0);
 
-    final double totalPeriod = years + (months / 12.0);
+    double base = total <= 5
+        ? total * (salary / 2)
+        : 5 * (salary / 2) + (total - 5) * salary;
 
-    double baseReward = 0;
-    if (totalPeriod <= 5) {
-      baseReward = totalPeriod * (salary / 2);
-    } else {
-      baseReward = 5 * (salary / 2);
-      baseReward += (totalPeriod - 5) * salary;
+    double final_ = base;
+    if (_reason == 'resignation') {
+      if      (total < 2)  final_ = 0;
+      else if (total < 5)  final_ = base * (1 / 3);
+      else if (total < 10) final_ = base * (2 / 3);
     }
 
-    double finalReward = baseReward;
-    if (_terminationReason == 'resignation') {
-      if (totalPeriod < 2) {
-        finalReward = 0;
-      } else if (totalPeriod < 5) {
-        finalReward = baseReward * (1 / 3);
-      } else if (totalPeriod < 10) {
-        finalReward = baseReward * (2 / 3);
-      }
-    }
-
-    setState(() => _result = finalReward);
+    setState(() {
+      _result     = final_;
+      _baseReward = base;
+      _totalYears = total;
+    });
+    _animCtrl.forward(from: 0);
   }
 
   @override
   void dispose() {
-    _salaryController.dispose();
-    _yearsController.dispose();
-    _monthsController.dispose();
+    _animCtrl.dispose();
+    _salaryCtr.dispose();
+    _yearsCtr.dispose();
+    _monthsCtr.dispose();
     _bannerAd?.dispose();
     _interstitialAd?.dispose();
     super.dispose();
@@ -191,27 +174,60 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: 'ر.س ', decimalDigits: 2);
-
+    final fmt = NumberFormat('#,##0.00', 'ar');
     return Scaffold(
       body: Column(
         children: [
-          _buildHeader(),
+          _Header(),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
                 children: [
-                  _buildInputCard(),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _calculate,
-                    child: const Text('احتساب المكافأة'),
+                  _SectionCard(
+                    icon: Icons.payments_rounded,
+                    title: 'الراتب الأساسي',
+                    child: _AmountField(controller: _salaryCtr),
                   ),
+                  const SizedBox(height: 12),
+                  _SectionCard(
+                    icon: Icons.timeline_rounded,
+                    title: 'مدة الخدمة',
+                    child: Row(
+                      children: [
+                        Expanded(child: _DurationField(controller: _yearsCtr, label: 'سنوات', max: 50)),
+                        const SizedBox(width: 12),
+                        Expanded(child: _DurationField(controller: _monthsCtr, label: 'أشهر', max: 11)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _SectionCard(
+                    icon: Icons.gavel_rounded,
+                    title: 'سبب انتهاء العلاقة',
+                    child: _ReasonSelector(
+                      value: _reason,
+                      onChanged: (v) => setState(() => _reason = v),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _CalcButton(onTap: _onCalculate),
                   if (_result != null) ...[
-                    const SizedBox(height: 24),
-                    _buildResultCard(currencyFormat),
+                    const SizedBox(height: 20),
+                    FadeTransition(
+                      opacity: _fadeAnim,
+                      child: SlideTransition(
+                        position: _slideAnim,
+                        child: _ResultCard(
+                          result: _result!,
+                          base: _baseReward!,
+                          years: _totalYears,
+                          reason: _reason,
+                          fmt: fmt,
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -227,40 +243,412 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
+// ── Header ─────────────────────────────────────────────────────────────────
+
+class _Header extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
     return Container(
-      color: _cPrimary,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 20,
-        bottom: 24,
-        right: 20,
-        left: 20,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [_navy, _navyLight],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
       ),
+      padding: EdgeInsets.fromLTRB(20, top + 18, 20, 22),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 48, height: 48,
             decoration: BoxDecoration(
-              color: _cCTA,
-              borderRadius: BorderRadius.circular(10),
+              color: _blue,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: _blue.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))],
             ),
-            child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 24),
+            child: const Icon(Icons.account_balance_rounded, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 14),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'حاسبة مكافأة نهاية الخدمة',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700),
-                ),
+                Text('حاسبة مكافأة نهاية الخدمة',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800, height: 1.3)),
                 SizedBox(height: 3),
-                Text(
-                  'وفق نظام العمل السعودي',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                Text('وفق نظام العمل السعودي',
+                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white.withOpacity(0.12)),
+            ),
+            child: const Text('1436/ه', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Section Card ────────────────────────────────────────────────────────────
+
+class _SectionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget child;
+  const _SectionCard({required this.icon, required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: _border)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(color: _blueLight, borderRadius: BorderRadius.circular(8)),
+                  child: Icon(icon, color: _blue, size: 17),
+                ),
+                const SizedBox(width: 10),
+                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _text)),
+              ],
+            ),
+          ),
+          Padding(padding: const EdgeInsets.all(16), child: child),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Fields ──────────────────────────────────────────────────────────────────
+
+class _AmountField extends StatelessWidget {
+  final TextEditingController controller;
+  const _AmountField({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: _text),
+      decoration: InputDecoration(
+        hintText: '0.00',
+        hintStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w300, color: _muted.withOpacity(0.5)),
+        suffixText: 'ر.س',
+        suffixStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _muted),
+        filled: true,
+        fillColor: _inputBg,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _blue, width: 2)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
+        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 2)),
+      ),
+      validator: (v) => (v == null || v.isEmpty || double.tryParse(v) == null || double.parse(v) <= 0)
+          ? 'أدخل راتباً صحيحاً'
+          : null,
+    );
+  }
+}
+
+class _DurationField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final int max;
+  const _DurationField({required this.controller, required this.label, required this.max});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _muted)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: _text),
+          decoration: InputDecoration(
+            hintText: '0',
+            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: _muted.withOpacity(0.4)),
+            filled: true,
+            fillColor: _inputBg,
+            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _blue, width: 2)),
+          ),
+          validator: (v) {
+            if (v == null || v.isEmpty) return null;
+            final n = int.tryParse(v);
+            if (n == null || n < 0 || n > max) return '0–$max';
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+}
+
+// ── Reason Selector ─────────────────────────────────────────────────────────
+
+class _ReasonSelector extends StatelessWidget {
+  final String value;
+  final ValueChanged<String> onChanged;
+  const _ReasonSelector({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ReasonTile(
+          value: 'termination',
+          selected: value == 'termination',
+          icon: Icons.business_center_rounded,
+          label: 'إنهاء من قِبَل صاحب العمل',
+          subtitle: 'المكافأة كاملة بحسب نظام العمل',
+          onTap: () => onChanged('termination'),
+        ),
+        const SizedBox(height: 8),
+        _ReasonTile(
+          value: 'resignation',
+          selected: value == 'resignation',
+          icon: Icons.exit_to_app_rounded,
+          label: 'استقالة',
+          subtitle: 'تُحتسب حسب مدة الخدمة',
+          onTap: () => onChanged('resignation'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReasonTile extends StatelessWidget {
+  final String value, label, subtitle;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+  const _ReasonTile({
+    required this.value, required this.label, required this.subtitle,
+    required this.icon, required this.selected, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: selected ? _blueLight : _inputBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: selected ? _blue : _border, width: selected ? 2 : 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38, height: 38,
+              decoration: BoxDecoration(
+                color: selected ? _blue : _border,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: selected ? Colors.white : _muted, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: selected ? _blue : _text)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: const TextStyle(fontSize: 11, color: _muted)),
+                ],
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 20, height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: selected ? _blue : Colors.transparent,
+                border: Border.all(color: selected ? _blue : _border, width: 2),
+              ),
+              child: selected ? const Icon(Icons.check, color: Colors.white, size: 12) : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Calculate Button ─────────────────────────────────────────────────────────
+
+class _CalcButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CalcButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [_blue, Color(0xFF0284C7)]),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [BoxShadow(color: _blue.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 5))],
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.calculate_rounded, color: Colors.white, size: 22),
+              SizedBox(width: 10),
+              Text('احتساب المكافأة', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Result Card ──────────────────────────────────────────────────────────────
+
+class _ResultCard extends StatelessWidget {
+  final double result, base, totalYears;
+  final String reason;
+  final NumberFormat fmt;
+
+  const _ResultCard({
+    required this.result, required this.base,
+    required double years, required this.reason, required this.fmt,
+  }) : totalYears = years;
+
+  String get _reductionLabel {
+    if (reason == 'termination') return 'مكافأة كاملة';
+    if (totalYears < 2)  return 'لا يحق (أقل من سنتين)';
+    if (totalYears < 5)  return 'ثلث المكافأة';
+    if (totalYears < 10) return 'ثلثا المكافأة';
+    return 'مكافأة كاملة';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final years = totalYears.floor();
+    final months = ((totalYears - years) * 12).round();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _greenBorder, width: 1.5),
+        boxShadow: [BoxShadow(color: _green.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 8))],
+      ),
+      child: Column(
+        children: [
+          // Top green banner
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            decoration: BoxDecoration(
+              color: _greenBg,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              border: const Border(bottom: BorderSide(color: _greenBorder)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 52, height: 52,
+                  decoration: BoxDecoration(
+                    color: _green.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.verified_rounded, color: _green, size: 28),
+                ),
+                const SizedBox(height: 10),
+                const Text('المكافأة المستحقة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _green)),
+                const SizedBox(height: 8),
+                _CountUp(target: result, fmt: fmt),
+              ],
+            ),
+          ),
+          // Breakdown
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _BreakdownRow(
+                  label: 'المكافأة الأساسية',
+                  value: '${fmt.format(base)} ر.س',
+                  icon: Icons.functions_rounded,
+                  color: _blue,
+                ),
+                const SizedBox(height: 8),
+                _BreakdownRow(
+                  label: 'تعديل الاستقالة',
+                  value: _reductionLabel,
+                  icon: Icons.tune_rounded,
+                  color: _muted,
+                ),
+                const SizedBox(height: 8),
+                _BreakdownRow(
+                  label: 'مدة الخدمة',
+                  value: '$years سنة${months > 0 ? " و$months شهر" : ""}',
+                  icon: Icons.access_time_rounded,
+                  color: _muted,
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(color: _border),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: _blueLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.info_outline_rounded, color: _blue, size: 14),
+                      SizedBox(width: 6),
+                      Text('محتسبة وفق نظام العمل السعودي',
+                          style: TextStyle(fontSize: 11, color: _blue, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -269,197 +657,73 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       ),
     );
   }
+}
 
-  Widget _buildInputCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: _cSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _cBorder),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionLabel('بيانات الراتب', Icons.payments_outlined),
-          const SizedBox(height: 14),
-          _buildTextField(
-            controller: _salaryController,
-            label: 'الراتب الأخير (الأساسي + البدلات)',
-            hint: 'مثال: 5000',
-            icon: Icons.account_balance_wallet_outlined,
-          ),
-          const SizedBox(height: 20),
-          _buildSectionLabel('مدة الخدمة', Icons.access_time_outlined),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  controller: _yearsController,
-                  label: 'السنوات',
-                  hint: '0',
-                  icon: Icons.calendar_today_outlined,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildTextField(
-                  controller: _monthsController,
-                  label: 'الأشهر',
-                  hint: '0',
-                  icon: Icons.date_range_outlined,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildSectionLabel('سبب انتهاء العلاقة', Icons.info_outline),
-          const SizedBox(height: 14),
-          _buildDropdown(),
-        ],
-      ),
-    );
-  }
+class _BreakdownRow extends StatelessWidget {
+  final String label, value;
+  final IconData icon;
+  final Color color;
+  const _BreakdownRow({required this.label, required this.value, required this.icon, required this.color});
 
-  Widget _buildSectionLabel(String text, IconData icon) {
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: _cCTA),
+        Icon(icon, size: 16, color: color),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-            color: _cSecondary,
-            letterSpacing: 0.2,
-          ),
-        ),
+        Text(label, style: const TextStyle(fontSize: 13, color: _muted)),
+        const Spacer(),
+        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _text)),
       ],
     );
   }
+}
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _cMuted),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          style: const TextStyle(fontSize: 16, color: _cText, fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: _cMuted.withOpacity(0.6)),
-            prefixIcon: Icon(icon, size: 20, color: _cCTA),
-          ),
-        ),
-      ],
-    );
+// ── Count-Up Animation ───────────────────────────────────────────────────────
+
+class _CountUp extends StatefulWidget {
+  final double target;
+  final NumberFormat fmt;
+  const _CountUp({required this.target, required this.fmt});
+
+  @override
+  State<_CountUp> createState() => _CountUpState();
+}
+
+class _CountUpState extends State<_CountUp> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double>   _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _anim = Tween<double>(begin: 0, end: widget.target)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutExpo));
+    _ctrl.forward();
   }
 
-  Widget _buildDropdown() {
-    return Container(
-      decoration: BoxDecoration(
-        color: _cSurface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _cBorder),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _terminationReason,
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _cCTA),
-          style: const TextStyle(fontSize: 15, color: _cText, fontWeight: FontWeight.w500),
-          items: const [
-            DropdownMenuItem(
-              value: 'termination',
-              child: Text('إنهاء عقد من قِبَل جهة العمل'),
-            ),
-            DropdownMenuItem(
-              value: 'resignation',
-              child: Text('استقالة'),
-            ),
-          ],
-          onChanged: (value) => setState(() => _terminationReason = value!),
-        ),
-      ),
-    );
+  @override
+  void didUpdateWidget(_CountUp old) {
+    super.didUpdateWidget(old);
+    if (old.target != widget.target) {
+      _anim = Tween<double>(begin: old.target, end: widget.target)
+          .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutExpo));
+      _ctrl.forward(from: 0);
+    }
   }
 
-  Widget _buildResultCard(NumberFormat formatter) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _cResultBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _cResultBorder, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: _cCTA.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-      child: Column(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: _cCTA.withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.check_circle_outline_rounded, color: _cCTA, size: 30),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'المكافأة المستحقة',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _cSecondary),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            formatter.format(_result),
-            style: const TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w800,
-              color: _cPrimary,
-              letterSpacing: -0.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: _cCTA.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'محتسبة وفق نظام العمل السعودي',
-              style: TextStyle(fontSize: 12, color: _cCTA, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) => Text(
+        '${widget.fmt.format(_anim.value)} ر.س',
+        style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: _navy, letterSpacing: -1, height: 1.2),
+        textAlign: TextAlign.center,
       ),
     );
   }
