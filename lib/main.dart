@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -17,7 +18,7 @@ const _cResultBorder = Color(0xFFBFDBFE);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
+  if (!kIsWeb) MobileAds.instance.initialize();
   runApp(const EndOfServiceApp());
 }
 
@@ -105,6 +106,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   void _loadBanner() {
+    if (kIsWeb) return;
     _bannerAd = BannerAd(
       adUnitId: 'ca-app-pub-9928258270334822/3089442375',
       size: AdSize.banner,
@@ -117,6 +119,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   void _loadInterstitial() {
+    if (kIsWeb) return;
     InterstitialAd.load(
       adUnitId: 'ca-app-pub-9928258270334822/1975350272',
       request: const AdRequest(),
