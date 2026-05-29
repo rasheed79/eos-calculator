@@ -284,15 +284,6 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white.withOpacity(0.12)),
-            ),
-            child: const Text('1436/ه', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
-          ),
         ],
       ),
     );
