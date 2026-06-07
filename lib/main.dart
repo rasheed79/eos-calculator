@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:intl/intl.dart';
 
 // ui-ux-pro-max: Financial Dashboard + Trust & Authority
@@ -78,6 +79,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   BannerAd?       _bannerAd;
   InterstitialAd? _interstitialAd;
   bool _isBannerLoaded = false;
+  int _calcCount = 0;
 
   late AnimationController _animCtrl;
   late Animation<double>   _fadeAnim;
@@ -157,8 +159,17 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       _result     = final_;
       _baseReward = base;
       _totalYears = total;
+      _calcCount++;
     });
     _animCtrl.forward(from: 0);
+    if (_calcCount == 3 && !kIsWeb) _requestReview();
+  }
+
+  Future<void> _requestReview() async {
+    final review = InAppReview.instance;
+    if (await review.isAvailable()) {
+      await review.requestReview();
+    }
   }
 
   @override
