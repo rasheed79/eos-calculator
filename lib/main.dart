@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ui-ux-pro-max: Financial Dashboard + Trust & Authority
 // Primary: #0F172A | CTA: #0369A1 | Profit: #22C55E | BG: #F8FAFC
@@ -240,6 +241,8 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                       ),
                     ),
                   ],
+                  const SizedBox(height: 24),
+                  const _DisclaimerFooter(),
                 ],
               ),
             ),
@@ -293,6 +296,75 @@ class _Header extends StatelessWidget {
                 Text('وفق نظام العمل السعودي',
                     style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Disclaimer + Source ─────────────────────────────────────────────────────
+
+class _DisclaimerFooter extends StatelessWidget {
+  const _DisclaimerFooter();
+
+  static const _sourceUrl = 'https://hrsd.gov.sa';
+
+  Future<void> _openSource() async {
+    final uri = Uri.parse(_sourceUrl);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFED7AA)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Color(0xFFC2410C), size: 16),
+              SizedBox(width: 6),
+              Text('تنبيه',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFC2410C))),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'هذا التطبيق غير تابع لأي جهة حكومية ولا يمثل وزارة الموارد البشرية والتنمية الاجتماعية. '
+            'النتائج تقديرية للاسترشاد فقط، والمرجع الرسمي هو نظام العمل السعودي.',
+            style: TextStyle(fontSize: 12, color: _muted, height: 1.6),
+          ),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: _openSource,
+            borderRadius: BorderRadius.circular(8),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.link_rounded, color: _blue, size: 16),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'المصدر الرسمي: وزارة الموارد البشرية — hrsd.gov.sa',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _blue,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
