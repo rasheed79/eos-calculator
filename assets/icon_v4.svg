@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0F0C29"/>
+      <stop offset="50%" style="stop-color:#302B63"/>
+      <stop offset="100%" style="stop-color:#24243E"/>
+    </linearGradient>
+    <linearGradient id="glassTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#67E8F9" stop-opacity="0.25"/>
+      <stop offset="100%" style="stop-color:#06B6D4" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="glassBot" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDE68A" stop-opacity="0.15"/>
+      <stop offset="100%" style="stop-color:#F59E0B" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="sandFlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCD34D"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="coinPile" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#D97706"/>
+      <stop offset="100%" style="stop-color:#FDE68A"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="topGlass">
+      <polygon points="290,170 734,170 560,500 464,500"/>
+    </clipPath>
+    <clipPath id="botGlass">
+      <polygon points="464,524 560,524 734,854 290,854"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="215" ry="215" fill="url(#bg)"/>
+
+  <!-- Ambient glow -->
+  <circle cx="512" cy="512" r="300" fill="#4F46E5" opacity="0.08"/>
+
+  <!-- === HOURGLASS FRAME === -->
+
+  <!-- Top glass fill -->
+  <polygon points="290,170 734,170 560,500 464,500" fill="url(#glassTop)"/>
+
+  <!-- Bottom glass fill (coins) -->
+  <polygon points="464,524 560,524 734,854 290,854" fill="url(#glassBot)"/>
+
+  <!-- Coin pile in bottom -->
+  <ellipse cx="512" cy="820" rx="180" ry="28" fill="url(#coinPile)" opacity="0.9"/>
+  <ellipse cx="512" cy="800" rx="160" ry="24" fill="#F59E0B" opacity="0.8"/>
+  <ellipse cx="512" cy="782" rx="136" ry="20" fill="#FCD34D" opacity="0.85"/>
+  <ellipse cx="512" cy="766" rx="108" ry="16" fill="#FDE68A" opacity="0.8"/>
+  <ellipse cx="512" cy="752" rx="78" ry="12" fill="#FEF3C7" opacity="0.75"/>
+
+  <!-- Sand stream falling through neck -->
+  <rect x="504" y="498" width="16" height="28" rx="8" fill="url(#sandFlow)" filter="url(#glow)"/>
+  <!-- Tiny particles -->
+  <circle cx="509" cy="515" r="3" fill="#FCD34D" opacity="0.9"/>
+  <circle cx="516" cy="508" r="2.5" fill="#FDE68A" opacity="0.7"/>
+  <circle cx="512" cy="522" r="2" fill="#F59E0B" opacity="0.8"/>
+
+  <!-- Hourglass outline — top trapezoid -->
+  <polygon points="290,170 734,170 560,500 464,500"
+    fill="none" stroke="#67E8F9" stroke-width="8" stroke-linejoin="round" opacity="0.7"/>
+
+  <!-- Hourglass outline — bottom trapezoid -->
+  <polygon points="464,524 560,524 734,854 290,854"
+    fill="none" stroke="#67E8F9" stroke-width="8" stroke-linejoin="round" opacity="0.7"/>
+
+  <!-- Top bar + bottom bar -->
+  <rect x="278" y="155" width="468" height="26" rx="13" fill="#67E8F9" opacity="0.6"/>
+  <rect x="278" y="843" width="468" height="26" rx="13" fill="#67E8F9" opacity="0.6"/>
+
+  <!-- Neck connector -->
+  <rect x="458" y="497" width="108" height="30" rx="8" fill="#302B63"/>
+  <rect x="462" y="500" width="100" height="24" rx="6" fill="#67E8F9" opacity="0.15"/>
+
+  <!-- === BRIEFCASE inside top glass === -->
+  <g transform="translate(512, 310)" filter="url(#softglow)">
+    <!-- Briefcase body -->
+    <rect x="-80" y="-52" width="160" height="116" rx="18" fill="none"
+      stroke="#67E8F9" stroke-width="9" opacity="0.9"/>
+    <!-- Handle -->
+    <path d="M -36 -52 L -36 -72 Q -36 -88 -20 -88 L 20 -88 Q 36 -88 36 -72 L 36 -52"
+      fill="none" stroke="#67E8F9" stroke-width="9" stroke-linecap="round" opacity="0.9"/>
+    <!-- Center divider line -->
+    <rect x="-80" y="-8" width="160" height="9" rx="4" fill="#67E8F9" opacity="0.3"/>
+    <!-- Latch -->
+    <rect x="-14" y="-16" width="28" height="30" rx="8" fill="#67E8F9" opacity="0.4"/>
+    <circle cx="0" cy="-2" r="7" fill="#67E8F9" opacity="0.7"/>
+  </g>
+
+  <!-- Sparkle stars top-right -->
+  <g fill="#FCD34D" filter="url(#glow)">
+    <circle cx="780" cy="220" r="5" opacity="0.9"/>
+    <circle cx="800" cy="195" r="3" opacity="0.7"/>
+    <circle cx="760" cy="200" r="3.5" opacity="0.8"/>
+    <!-- 4-point star -->
+    <polygon points="820,260 826,272 838,272 828,280 832,292 820,284 808,292 812,280 802,272 814,272" opacity="0.7" transform="scale(0.55) translate(680,190)"/>
+  </g>
+
+  <!-- Glow dot under bottom -->
+  <circle cx="512" cy="854" r="50" fill="#F59E0B" opacity="0.12"/>
+
+</svg>

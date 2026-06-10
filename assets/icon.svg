@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0F172A"/>
+      <stop offset="100%" style="stop-color:#1E3A5F"/>
+    </linearGradient>
+    <linearGradient id="docGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#E2E8F0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="200" ry="200" fill="url(#bgGrad)"/>
+
+  <!-- Document body -->
+  <rect x="260" y="200" width="420" height="520" rx="24" ry="24" fill="url(#docGrad)"/>
+
+  <!-- Document fold corner -->
+  <polygon points="600,200 680,280 600,280" fill="#CBD5E1"/>
+  <polygon points="600,200 680,280 600,280" fill="#94A3B8" opacity="0.5"/>
+  <rect x="600" y="200" width="80" height="80" rx="0" fill="none"/>
+  <polygon points="600,200 680,200 680,280" fill="#94A3B8"/>
+
+  <!-- Document lines (text placeholder) -->
+  <rect x="300" y="320" width="240" height="16" rx="8" fill="#CBD5E1"/>
+  <rect x="300" y="356" width="180" height="14" rx="7" fill="#E2E8F0"/>
+  <rect x="300" y="390" width="200" height="14" rx="7" fill="#E2E8F0"/>
+
+  <!-- Divider -->
+  <rect x="300" y="430" width="340" height="2" fill="#E2E8F0"/>
+
+  <!-- Saudi Riyal symbol (ر.س) -->
+  <text x="512" y="575"
+    font-family="Arial, sans-serif"
+    font-size="110"
+    font-weight="bold"
+    fill="#0369A1"
+    text-anchor="middle"
+    dominant-baseline="middle">ر.س</text>
+
+  <!-- Green checkmark badge -->
+  <circle cx="700" cy="700" r="100" fill="#16A34A"/>
+  <polyline points="650,700 685,740 755,660"
+    fill="none"
+    stroke="#FFFFFF"
+    stroke-width="22"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+</svg>

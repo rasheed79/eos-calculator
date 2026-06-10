@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0C1445"/>
+      <stop offset="60%" style="stop-color:#0369A1"/>
+      <stop offset="100%" style="stop-color:#0284C7"/>
+    </linearGradient>
+    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FCD34D"/>
+      <stop offset="50%" style="stop-color:#F59E0B"/>
+      <stop offset="100%" style="stop-color:#D97706"/>
+    </linearGradient>
+    <linearGradient id="coinInner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FEF3C7"/>
+      <stop offset="100%" style="stop-color:#FCD34D"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="220" ry="220" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.06" stroke="#FFFFFF" stroke-width="1.5">
+    <line x1="0" y1="256" x2="1024" y2="256"/>
+    <line x1="0" y1="512" x2="1024" y2="512"/>
+    <line x1="0" y1="768" x2="1024" y2="768"/>
+    <line x1="256" y1="0" x2="256" y2="1024"/>
+    <line x1="512" y1="0" x2="512" y2="1024"/>
+    <line x1="768" y1="0" x2="768" y2="1024"/>
+  </g>
+
+  <!-- Coin outer ring (shadow) -->
+  <circle cx="512" cy="460" r="240" fill="#B45309" opacity="0.5" filter="url(#shadow)"/>
+
+  <!-- Coin main -->
+  <circle cx="512" cy="450" r="240" fill="url(#coinGrad)"/>
+
+  <!-- Coin inner ring -->
+  <circle cx="512" cy="450" r="210" fill="none" stroke="#FEF3C7" stroke-width="6" opacity="0.6"/>
+
+  <!-- Coin face -->
+  <circle cx="512" cy="450" r="195" fill="url(#coinInner)"/>
+
+  <!-- Saudi Riyal symbol -->
+  <text x="512" y="415"
+    font-family="'Arial', 'Helvetica Neue', sans-serif"
+    font-size="88"
+    font-weight="900"
+    fill="#92400E"
+    text-anchor="middle"
+    dominant-baseline="middle">ر.س</text>
+
+  <!-- Subtitle on coin -->
+  <text x="512" y="510"
+    font-family="'Arial', 'Helvetica Neue', sans-serif"
+    font-size="32"
+    font-weight="700"
+    fill="#B45309"
+    text-anchor="middle"
+    letter-spacing="2">مكافأة</text>
+
+  <!-- Bottom bar / label -->
+  <rect x="180" y="750" width="664" height="100" rx="50" fill="#FFFFFF" opacity="0.12"/>
+
+  <text x="512" y="813"
+    font-family="'Arial', 'Helvetica Neue', sans-serif"
+    font-size="44"
+    font-weight="700"
+    fill="#FFFFFF"
+    text-anchor="middle"
+    dominant-baseline="middle">نهاية الخدمة</text>
+
+  <!-- Top sparkle stars -->
+  <g fill="#FCD34D" opacity="0.9">
+    <polygon points="200,180 210,200 230,200 215,212 221,232 200,220 179,232 185,212 170,200 190,200" transform="scale(0.6) translate(130,160)"/>
+    <polygon points="200,180 210,200 230,200 215,212 221,232 200,220 179,232 185,212 170,200 190,200" transform="scale(0.4) translate(1600,80)"/>
+    <polygon points="200,180 210,200 230,200 215,212 221,232 200,220 179,232 185,212 170,200 190,200" transform="scale(0.35) translate(400,2000)"/>
+  </g>
+</svg>

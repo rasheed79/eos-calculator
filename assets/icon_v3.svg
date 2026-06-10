@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a0533"/>
+      <stop offset="100%" style="stop-color:#6D28D9"/>
+    </linearGradient>
+
+    <linearGradient id="bar1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F472B6"/>
+      <stop offset="100%" style="stop-color:#EC4899"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C084FC"/>
+      <stop offset="100%" style="stop-color:#A855F7"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#60A5FA"/>
+      <stop offset="100%" style="stop-color:#3B82F6"/>
+    </linearGradient>
+
+    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDE68A"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
+    </linearGradient>
+
+    <filter id="glow1">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="210" ry="210" fill="url(#bg)"/>
+
+  <!-- Subtle radial glow center -->
+  <circle cx="512" cy="520" r="380" fill="#7C3AED" opacity="0.25"/>
+
+  <!-- Floor line -->
+  <rect x="160" y="740" width="704" height="6" rx="3" fill="#FFFFFF" opacity="0.2"/>
+
+  <!-- Bar 1 — short (year 1-2) -->
+  <rect x="198" y="580" width="140" height="160" rx="20" fill="url(#bar1)" filter="url(#glow1)"/>
+
+  <!-- Bar 2 — medium (year 3-5) -->
+  <rect x="378" y="420" width="140" height="320" rx="20" fill="url(#bar2)" filter="url(#glow1)"/>
+
+  <!-- Bar 3 — tall (year 6+) -->
+  <rect x="558" y="230" width="140" height="510" rx="20" fill="url(#bar3)" filter="url(#glow1)"/>
+
+  <!-- Floating coin top of bar3 -->
+  <circle cx="628" cy="200" r="64" fill="url(#coinGrad)" filter="url(#glow1)"/>
+  <circle cx="628" cy="200" r="52" fill="none" stroke="#FEF3C7" stroke-width="4" opacity="0.8"/>
+
+  <!-- Check inside coin -->
+  <polyline points="598,200 618,222 662,175"
+    fill="none" stroke="#92400E" stroke-width="10"
+    stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Upward arrow on bar3 top -->
+  <g transform="translate(786, 270)">
+    <circle r="40" fill="#FFFFFF" opacity="0.12"/>
+    <polyline points="0,20 0,-10" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+    <polyline points="-14,4 0,-12 14,4" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Dot indicators above bars 1 & 2 -->
+  <circle cx="268" cy="558" r="12" fill="#F472B6" opacity="0.9"/>
+  <circle cx="448" cy="398" r="12" fill="#C084FC" opacity="0.9"/>
+
+  <!-- Connecting dashed line between dots -->
+  <line x1="268" y1="558" x2="448" y2="398" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="12,8" opacity="0.3"/>
+  <line x1="448" y1="398" x2="628" y2="200" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="12,8" opacity="0.3"/>
+
+</svg>
