@@ -10,9 +10,11 @@ import 'package:url_launcher/url_launcher.dart';
 // ui-ux-pro-max: Financial Dashboard + Trust & Authority
 // Primary: #0F172A | CTA: #0369A1 | Profit: #22C55E | BG: #F8FAFC
 const _navy      = Color(0xFF0F172A);
-const _navyLight = Color(0xFF1E3A5F);
+const _navyMid   = Color(0xFF1E293B);
 const _blue      = Color(0xFF0369A1);
 const _blueLight = Color(0xFFEFF6FF);
+const _gold      = Color(0xFFF59E0B);
+const _goldLight = Color(0xFFFEF3C7);
 const _green     = Color(0xFF16A34A);
 const _greenBg   = Color(0xFFF0FDF4);
 const _greenBorder = Color(0xFFBBF7D0);
@@ -265,41 +267,31 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [_navy, _navyLight],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [_navy, _navyMid],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(24, top + 24, 24, 20),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('احسب مكافأتك',
+                  style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, height: 1.2)),
+              SizedBox(height: 6),
+              Text('وفق نظام العمل السعودي',
+                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500)),
+            ],
+          ),
         ),
-      ),
-      padding: EdgeInsets.fromLTRB(20, top + 18, 20, 22),
-      child: Row(
-        children: [
-          Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(
-              color: _blue,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [BoxShadow(color: _blue.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))],
-            ),
-            child: const Icon(Icons.account_balance_rounded, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('حاسبة مكافأة نهاية الخدمة',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800, height: 1.3)),
-                SizedBox(height: 3),
-                Text('وفق نظام العمل السعودي',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
-              ],
-            ),
-          ),
-        ],
-      ),
+        Container(height: 3, color: _gold),
+      ],
     );
   }
 }
@@ -611,7 +603,7 @@ class _CalcButton extends StatelessWidget {
             children: [
               Icon(Icons.calculate_rounded, color: Colors.white, size: 22),
               SizedBox(width: 10),
-              Text('احتساب المكافأة', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
+              Text('احسب الآن', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
             ],
           ),
         ),
@@ -649,33 +641,44 @@ class _ResultCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: _surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _greenBorder, width: 1.5),
-        boxShadow: [BoxShadow(color: _green.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8))],
       ),
       child: Column(
         children: [
-          // Top green banner
+          // Navy gradient hero
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            decoration: BoxDecoration(
-              color: _greenBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-              border: const Border(bottom: BorderSide(color: _greenBorder)),
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [_navy, Color(0xFF1E3A5F)],
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 52, height: 52,
-                  decoration: BoxDecoration(
-                    color: _green.withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.verified_rounded, color: _green, size: 28),
+                Row(
+                  children: [
+                    Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color: _green.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check_rounded, color: _green, size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text('إجمالي مكافأة نهاية الخدمة',
+                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500)),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                const Text('المكافأة المستحقة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _green)),
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
                 _CountUp(target: result, fmt: fmt),
+                const SizedBox(height: 10),
+                Container(height: 3, width: 60, decoration: BoxDecoration(color: _gold, borderRadius: BorderRadius.circular(2))),
               ],
             ),
           ),
@@ -692,7 +695,7 @@ class _ResultCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _BreakdownRow(
-                  label: 'تعديل الاستقالة',
+                  label: 'نسبة الاستحقاق',
                   value: _reductionLabel,
                   icon: Icons.tune_rounded,
                   color: _muted,
@@ -711,16 +714,16 @@ class _ResultCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: _blueLight,
+                    color: _goldLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.info_outline_rounded, color: _blue, size: 14),
+                      Icon(Icons.gavel_rounded, color: _gold, size: 14),
                       SizedBox(width: 6),
                       Text('محتسبة وفق نظام العمل السعودي',
-                          style: TextStyle(fontSize: 11, color: _blue, fontWeight: FontWeight.w600)),
+                          style: TextStyle(fontSize: 11, color: Color(0xFF92400E), fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
@@ -796,7 +799,7 @@ class _CountUpState extends State<_CountUp> with SingleTickerProviderStateMixin 
       animation: _anim,
       builder: (_, __) => Text(
         '${widget.fmt.format(_anim.value)} ر.س',
-        style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: _navy, letterSpacing: -1, height: 1.2),
+        style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1, height: 1.2),
         textAlign: TextAlign.center,
       ),
     );
