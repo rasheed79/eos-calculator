@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1024px; height: 500px; overflow: hidden; font-family: 'IBM Plex Sans Arabic', sans-serif; }
+  .stage {
+    width: 1024px; height: 500px;
+    background: linear-gradient(160deg, #F4F7FE 0%, #FFFFFF 55%, #EFF5FF 100%);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 90px; position: relative; overflow: hidden;
+  }
+  .blob {
+    position: absolute; left: -140px; bottom: -180px;
+    width: 480px; height: 480px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.18) 0%, rgba(56,189,248,0) 70%);
+  }
+  .copy { max-width: 520px; position: relative; }
+  .mark {
+    width: 64px; height: 64px; border-radius: 20px;
+    background: linear-gradient(135deg, #2563EB, #38BDF8);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(37,99,235,0.30);
+    margin-bottom: 22px;
+  }
+  h1 { font-size: 47px; font-weight: 700; color: #0F172A; line-height: 1.25; }
+  p  { font-size: 23px; font-weight: 400; color: #64748B; margin-top: 12px; }
+  .card {
+    width: 330px; border-radius: 28px; position: relative;
+    background: linear-gradient(180deg, #1D4ED8 0%, #2563EB 45%, #38BDF8 100%);
+    box-shadow: 0 24px 60px rgba(37,99,235,0.35);
+    padding: 34px 30px; text-align: center; color: #fff;
+  }
+  .card .label { font-size: 17px; font-weight: 400; opacity: 0.85; }
+  .card .num   { font-size: 47px; font-weight: 700; margin-top: 10px; white-space: nowrap; }
+  .card .pill  {
+    display: inline-flex; align-items: center; gap: 7px; margin-top: 18px;
+    background: rgba(255,255,255,0.16); border-radius: 100px;
+    padding: 7px 18px; font-size: 16px; font-weight: 600;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #FACC15; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="blob"></div>
+  <div class="copy">
+    <div class="mark">
+      <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+        <rect x="14" y="30" width="72" height="48" rx="11" fill="#FFFFFF"/>
+        <path d="M86 46 H64 a9 9 0 0 0 0 18 H86 Z" fill="#DBEAFE"/>
+        <circle cx="66" cy="55" r="4" fill="#2563EB"/>
+        <circle cx="27" cy="29" r="13" fill="#F59E0B" stroke="#FFFFFF" stroke-width="4"/>
+      </svg>
+    </div>
+    <h1>حاسبة مكافأة نهاية الخدمة</h1>
+    <p>احسب مستحقاتك في ثوانٍ — وفق نظام العمل السعودي</p>
+  </div>
+  <div class="card">
+    <div class="label">إجمالي مكافأة نهاية الخدمة</div>
+    <div class="num">45,000.00 ر.س</div>
+    <div class="pill"><span class="dot"></span> محتسبة وفق نظام العمل</div>
+  </div>
+</div>
+</body>
+</html>

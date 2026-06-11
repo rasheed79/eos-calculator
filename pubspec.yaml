@@ -1,7 +1,7 @@
 name: app_01_end_of_service
 description: A new Flutter project for calculating Saudi End of Service reward.
 publish_to: 'none'
-version: 1.0.3+4
+version: 1.1.0+5
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -21,6 +21,14 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/store/icon_512.png"
+  adaptive_icon_background: "#2563EB"
+  adaptive_icon_foreground: "assets/store/launcher_foreground.png"
 
 flutter:
   uses-material-design: true

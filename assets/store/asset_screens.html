@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1920px; overflow: hidden; font-family: 'IBM Plex Sans Arabic', sans-serif; }
+  .stage {
+    width: 1080px; height: 1920px; position: relative;
+    background: linear-gradient(170deg, #EFF5FF 0%, #F4F7FE 40%, #DBEAFE 100%);
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 86px; overflow: hidden;
+  }
+  .blob {
+    position: absolute; right: -200px; top: -200px;
+    width: 640px; height: 640px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.20) 0%, rgba(56,189,248,0) 70%);
+  }
+  h1 { font-size: 64px; font-weight: 700; color: #0F172A; text-align: center; position: relative; }
+  p  { font-size: 30px; font-weight: 400; color: #475569; text-align: center; margin-top: 16px; position: relative; }
+  .phone {
+    margin-top: 60px; position: relative;
+    width: 668px; height: 1438px;
+    background: #0F172A; border-radius: 64px;
+    padding: 14px;
+    box-shadow: 0 40px 90px rgba(15,23,42,0.35);
+  }
+  .screen {
+    width: 640px; height: 1410px;
+    border-radius: 50px; overflow: hidden;
+    background-color: #F4F7FE;
+    background-repeat: no-repeat;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="blob"></div>
+  <h1 id="title"></h1>
+  <p id="sub"></p>
+  <div class="phone"><div class="screen" id="screen"></div></div>
+</div>
+<script>
+  const variants = {
+    1: {
+      title: 'احسب مكافأتك في ثوانٍ',
+      sub: 'أدخل راتبك ومدة خدمتك فقط',
+      img: 'store_raw_input.png',
+      size: '640px auto', pos: 'center top',
+    },
+    2: {
+      title: 'نتيجة فورية وواضحة',
+      sub: 'إجمالي مكافأتك بتفاصيل سهلة القراءة',
+      img: 'store_raw_result.png',
+      size: '640px auto', pos: 'center top',
+    },
+    3: {
+      title: 'تفاصيل دقيقة لكل حالة',
+      sub: 'إنهاء خدمة أو استقالة — وفق نظام العمل السعودي',
+      img: 'store_raw_result.png',
+      size: '720px auto', pos: 'center -408px',
+    },
+    4: {
+      title: 'شفافية كاملة',
+      sub: 'المرجع الرسمي: وزارة الموارد البشرية hrsd.gov.sa',
+      img: 'store_raw_input.png',
+      size: '860px auto', pos: 'center bottom',
+    },
+  };
+  const n = new URLSearchParams(location.search).get('n') || '1';
+  const v = variants[n];
+  document.getElementById('title').textContent = v.title;
+  document.getElementById('sub').textContent = v.sub;
+  const s = document.getElementById('screen');
+  s.style.backgroundImage = `url(${v.img})`;
+  s.style.backgroundSize = v.size;
+  s.style.backgroundPosition = v.pos;
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 ## Project
 Flutter app (Arabic RTL) — حساب مكافأة نهاية الخدمة وفق نظام العمل السعودي.
 - **Package:** `com.jamali.app01`
-- **Version:** `1.0.1+2`
+- **Version:** `1.1.0+5`
 - **Target:** Android (primary), Web (secondary)
 
 ## Stack
@@ -36,9 +36,12 @@ flutter build appbundle --release
 - Banner: `ca-app-pub-9928258270334822/3089442375`
 - Interstitial: `ca-app-pub-9928258270334822/1975350272`
 
-## Design System (ui-ux-pro-max)
-- Style: Accessible & Ethical — Government/HR
-- Primary: `#0F172A` | CTA: `#0369A1` | Success: `#16A34A` | BG: `#F8FAFC`
+## Design System (Light Fintech — v1.1.0)
+- Style: Light fintech wallet — soft gradients, big numbers, airy cards (radius 24)
+- Primary: `#2563EB` | Sky: `#38BDF8` | BG: `#F4F7FE` | Gold (legal chip only): `#F59E0B` | Text: `#0F172A`
+- Font: IBM Plex Sans Arabic (bundled in `assets/fonts/`, weights 400/600/700)
+- Store assets pipeline: `assets/store/asset_*.html` rendered via Playwright at exact viewport
+  (icon 512×512, feature 1024×500, screenshots 1080×1920)
 
 ## Pending
 - Extract `_performCalculation()` to separate service class

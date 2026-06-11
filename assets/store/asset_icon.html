@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; }
+  body { width: 512px; height: 512px; overflow: hidden; }
+  .tile {
+    width: 512px; height: 512px;
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 45%, #38BDF8 100%);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .glow {
+    position: absolute; top: -120px; left: -120px;
+    width: 380px; height: 380px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%);
+  }
+</style>
+</head>
+<body>
+<div class="tile">
+  <div class="glow"></div>
+  <svg width="300" height="300" viewBox="0 0 100 100" fill="none">
+    <!-- wallet body -->
+    <rect x="14" y="26" width="72" height="52" rx="12" fill="#FFFFFF"/>
+    <!-- wallet flap notch -->
+    <path d="M86 44 H64 a10 10 0 0 0 0 20 H86 Z" fill="#DBEAFE"/>
+    <!-- clasp dot -->
+    <circle cx="66" cy="54" r="4.5" fill="#2563EB"/>
+    <!-- gold coin -->
+    <circle cx="26" cy="26" r="15" fill="#F59E0B" stroke="#FFFFFF" stroke-width="4"/>
+    <circle cx="26" cy="26" r="8.5" fill="none" stroke="#FFF7E0" stroke-width="2.5"/>
+  </svg>
+</div>
+</body>
+</html>
