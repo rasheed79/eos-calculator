@@ -1,0 +1,25 @@
+- generic [ref=e7]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: احسب مكافأتك
+            - generic:
+              - generic: وفق نظام العمل السعودي
+            - generic:
+              - generic:
+                - group:
+                  - textbox "الراتب الأساسي" [ref=e18]: "10000"
+                  - generic:
+                    - generic: ر.س
+                  - group "مدة الخدمة سنوات أشهر":
+                    - textbox [ref=e19]: "7"
+                    - textbox "0" [ref=e13]
+                  - group "سبب انتهاء العلاقة":
+                    - button "إنهاء من قِبَل صاحب العمل المكافأة كاملة بحسب نظام العمل" [ref=e14]
+                    - button "استقالة تُحتسب حسب مدة الخدمة" [ref=e15]
+                  - button "احسب الآن" [active] [ref=e16]
+                  - generic:
+                    - generic: إجمالي مكافأة نهاية الخدمة 44,376.10 ر.س مكافأة كاملة المكافأة الأساسية 45,000.00 ر.س نسبة الاستحقاق مكافأة كاملة مدة الخدمة 7 سنة محتسبة وفق نظام العمل السعودي

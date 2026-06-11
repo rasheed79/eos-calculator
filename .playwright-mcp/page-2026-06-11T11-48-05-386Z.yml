@@ -1,0 +1,24 @@
+- generic [ref=e7] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: احسب مكافأتك
+            - generic:
+              - generic: وفق نظام العمل السعودي
+            - generic:
+              - generic:
+                - group:
+                  - textbox "الراتب الأساسي" [ref=e18]: "10000"
+                  - generic:
+                    - generic: ر.س
+                  - group "مدة الخدمة سنوات أشهر":
+                    - textbox [ref=e19]: "10"
+                    - textbox [ref=e21]: "0"
+                  - group "سبب انتهاء العلاقة":
+                    - button "إنهاء من قِبَل صاحب العمل المكافأة كاملة بحسب نظام العمل" [ref=e14]
+                    - button "استقالة تُحتسب حسب مدة الخدمة" [ref=e15]
+                  - button "احسب الآن" [active] [ref=e16]
+                  - 'button "تنبيه هذا التطبيق غير تابع لأي جهة حكومية ولا يمثل وزارة الموارد البشرية والتنمية الاجتماعية. النتائج تقديرية للاسترشاد فقط، والمرجع الرسمي هو نظام العمل السعودي. المصدر الرسمي: وزارة الموارد البشرية — hrsd.gov.sa" [ref=e20]'
