@@ -7,23 +7,30 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// ui-ux-pro-max: Financial Dashboard + Trust & Authority
-// Primary: #0F172A | CTA: #0369A1 | Profit: #22C55E | BG: #F8FAFC
-const _navy      = Color(0xFF0F172A);
-const _navyMid   = Color(0xFF1E293B);
-const _blue      = Color(0xFF0369A1);
-const _blueLight = Color(0xFFEFF6FF);
-const _gold      = Color(0xFFF59E0B);
-const _goldLight = Color(0xFFFEF3C7);
-const _green     = Color(0xFF16A34A);
-const _greenBg   = Color(0xFFF0FDF4);
-const _greenBorder = Color(0xFFBBF7D0);
-const _bg        = Color(0xFFF8FAFC);
-const _surface   = Color(0xFFFFFFFF);
-const _text      = Color(0xFF0F172A);
-const _muted     = Color(0xFF64748B);
-const _border    = Color(0xFFE2E8F0);
-const _inputBg   = Color(0xFFF8FAFC);
+// Light Fintech: Primary #2563EB | Sky #38BDF8 | BG #F4F7FE | Gold (legal) #F59E0B
+const _blue        = Color(0xFF2563EB);
+const _blueDeep    = Color(0xFF1D4ED8);
+const _sky         = Color(0xFF38BDF8);
+const _blueLight   = Color(0xFFEFF5FF);
+const _gold        = Color(0xFFF59E0B);
+const _goldLight   = Color(0xFFFEF3C7);
+const _bg          = Color(0xFFF4F7FE);
+const _surface     = Color(0xFFFFFFFF);
+const _text        = Color(0xFF0F172A);
+const _muted       = Color(0xFF64748B);
+const _border      = Color(0xFFE3EAF6);
+const _inputBg     = Color(0xFFF4F7FE);
+
+const _ctaGradient = LinearGradient(
+  colors: [_blue, _sky],
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+);
+const _heroGradient = LinearGradient(
+  colors: [_blueDeep, _blue, _sky],
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,13 +48,37 @@ class EndOfServiceApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        fontFamily: 'Cairo',
+        fontFamily: 'IBMPlexSansArabic',
         colorScheme: ColorScheme.fromSeed(
           seedColor: _blue,
           primary: _blue,
           surface: _surface,
         ),
         scaffoldBackgroundColor: _bg,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: _inputBg,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: _blue, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+        ),
       ),
       localizationsDelegates: const [
         GlobalCupertinoLocalizations.delegate,
@@ -153,9 +184,13 @@ class _CalculatorScreenState extends State<CalculatorScreen>
 
     double final_ = base;
     if (_reason == 'resignation') {
-      if      (total < 2)  final_ = 0;
-      else if (total < 5)  final_ = base * (1 / 3);
-      else if (total < 10) final_ = base * (2 / 3);
+      if (total < 2) {
+        final_ = 0;
+      } else if (total < 5) {
+        final_ = base * (1 / 3);
+      } else if (total < 10) {
+        final_ = base * (2 / 3);
+      }
     }
 
     setState(() {
@@ -190,7 +225,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   Widget build(BuildContext context) {
     final fmt = NumberFormat('#,##0.00', 'ar');
     return Scaffold(
-      body: Column(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [_bg, _surface],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
         children: [
           _Header(),
           Expanded(
@@ -249,13 +292,21 @@ class _CalculatorScreenState extends State<CalculatorScreen>
               ),
             ),
           ),
-          if (_isBannerLoaded)
+          if (!kIsWeb)
             SizedBox(
-              width:  _bannerAd!.size.width.toDouble(),
-              height: _bannerAd!.size.height.toDouble(),
-              child:  AdWidget(ad: _bannerAd!),
+              height: 50,
+              child: _isBannerLoaded
+                  ? Center(
+                      child: SizedBox(
+                        width:  _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        child:  AdWidget(ad: _bannerAd!),
+                      ),
+                    )
+                  : null,
             ),
         ],
+        ),
       ),
     );
   }
@@ -267,31 +318,39 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [_navy, _navyMid],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+    return Container(
+      width: double.infinity,
+      color: Colors.transparent,
+      padding: EdgeInsets.fromLTRB(20, top + 24, 20, 4),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: _ctaGradient,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(color: _blue.withValues(alpha: 0.25), blurRadius: 14, offset: const Offset(0, 6)),
+              ],
+            ),
+            child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 24),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('احسب مكافأتك',
+                    style: TextStyle(color: _text, fontSize: 24, fontWeight: FontWeight.w700, height: 1.2)),
+                SizedBox(height: 2),
+                Text('وفق نظام العمل السعودي',
+                    style: TextStyle(color: _muted, fontSize: 13, fontWeight: FontWeight.w400)),
+              ],
             ),
           ),
-          padding: EdgeInsets.fromLTRB(24, top + 24, 24, 20),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('احسب مكافأتك',
-                  style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, height: 1.2)),
-              SizedBox(height: 6),
-              Text('وفق نظام العمل السعودي',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500)),
-            ],
-          ),
-        ),
-        Container(height: 3, color: _gold),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -314,8 +373,7 @@ class _DisclaimerFooter extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF7ED),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFED7AA)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,33 +434,30 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: _surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _border),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: const Color(0xFF1E3A8A).withValues(alpha: 0.06), blurRadius: 24, offset: const Offset(0, 8)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: _border)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(color: _blueLight, borderRadius: BorderRadius.circular(8)),
-                  child: Icon(icon, color: _blue, size: 17),
-                ),
-                const SizedBox(width: 10),
-                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _text)),
-              ],
-            ),
+          Row(
+            children: [
+              Container(
+                width: 34, height: 34,
+                decoration: BoxDecoration(color: _blueLight, borderRadius: BorderRadius.circular(11)),
+                child: Icon(icon, color: _blue, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _text)),
+            ],
           ),
-          Padding(padding: const EdgeInsets.all(16), child: child),
+          const SizedBox(height: 14),
+          child,
         ],
       ),
     );
@@ -421,20 +476,13 @@ class _AmountField extends StatelessWidget {
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: _text),
+      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: _text),
       decoration: InputDecoration(
         hintText: '0.00',
-        hintStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w300, color: _muted.withOpacity(0.5)),
+        hintStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: _muted.withValues(alpha: 0.5)),
         suffixText: 'ر.س',
-        suffixStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _muted),
-        filled: true,
-        fillColor: _inputBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _blue, width: 2)),
-        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
-        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 2)),
+        suffixStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _blue),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       ),
       validator: (v) => (v == null || v.isEmpty || double.tryParse(v) == null || double.parse(v) <= 0)
           ? 'أدخل راتباً صحيحاً'
@@ -464,13 +512,8 @@ class _DurationField extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: _text),
           decoration: InputDecoration(
             hintText: '0',
-            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: _muted.withOpacity(0.4)),
-            filled: true,
-            fillColor: _inputBg,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _blue, width: 2)),
+            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: _muted.withValues(alpha: 0.4)),
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
           ),
           validator: (v) {
             if (v == null || v.isEmpty) return null;
@@ -536,16 +579,17 @@ class _ReasonTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected ? _blueLight : _inputBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? _blue : _border, width: selected ? 2 : 1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: selected ? _blue : Colors.transparent, width: 2),
         ),
         child: Row(
           children: [
             Container(
               width: 38, height: 38,
               decoration: BoxDecoration(
-                color: selected ? _blue : _border,
-                borderRadius: BorderRadius.circular(10),
+                gradient: selected ? _ctaGradient : null,
+                color: selected ? null : _border,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: selected ? Colors.white : _muted, size: 18),
             ),
@@ -587,16 +631,16 @@ class _CalcButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         child: Ink(
-          height: 56,
+          height: 58,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [_blue, Color(0xFF0284C7)]),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [BoxShadow(color: _blue.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 5))],
+            gradient: _ctaGradient,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [BoxShadow(color: _blue.withValues(alpha: 0.35), blurRadius: 18, offset: const Offset(0, 8))],
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -640,45 +684,56 @@ class _ResultCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: _surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8))],
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: _blue.withValues(alpha: 0.16), blurRadius: 30, offset: const Offset(0, 12)),
+        ],
       ),
       child: Column(
         children: [
-          // Navy gradient hero
+          // Wallet-style gradient hero
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 26, 20, 24),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [_navy, Color(0xFF1E3A5F)],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              gradient: _heroGradient,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 32, height: 32,
-                      decoration: BoxDecoration(
-                        color: _green.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.check_rounded, color: _green, size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text('إجمالي مكافأة نهاية الخدمة',
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.w500)),
+                    Icon(Icons.account_balance_wallet_rounded,
+                        color: Colors.white.withValues(alpha: 0.8), size: 16),
+                    const SizedBox(width: 6),
+                    Text('إجمالي مكافأة نهاية الخدمة',
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400)),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 _CountUp(target: result, fmt: fmt),
-                const SizedBox(height: 10),
-                Container(height: 3, width: 60, decoration: BoxDecoration(color: _gold, borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Colors.white, size: 14),
+                      const SizedBox(width: 6),
+                      Text(_reductionLabel,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -746,11 +801,15 @@ class _BreakdownRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 8),
+        Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(color: _inputBg, borderRadius: BorderRadius.circular(12)),
+          child: Icon(icon, size: 17, color: color),
+        ),
+        const SizedBox(width: 10),
         Text(label, style: const TextStyle(fontSize: 13, color: _muted)),
         const Spacer(),
-        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _text)),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _text)),
       ],
     );
   }
@@ -797,10 +856,13 @@ class _CountUpState extends State<_CountUp> with SingleTickerProviderStateMixin 
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _anim,
-      builder: (_, __) => Text(
-        '${widget.fmt.format(_anim.value)} ر.س',
-        style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1, height: 1.2),
-        textAlign: TextAlign.center,
+      builder: (_, __) => FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          '${widget.fmt.format(_anim.value)} ر.س',
+          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
