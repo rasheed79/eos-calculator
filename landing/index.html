@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حاسبة مكافأة نهاية الخدمة | احسب مكافأتك وفق نظام العمل السعودي</title>
+  <meta name="description" content="احسب مكافأة نهاية الخدمة بدقة وفق نظام العمل السعودي. أداة مجانية للموظفين في المملكة العربية السعودية — استقالة أو إنهاء عقد." />
+  <meta name="keywords" content="مكافأة نهاية الخدمة, حساب المكافأة, نظام العمل السعودي, حقوق العمال, مكافأة الاستقالة" />
+  <meta property="og:title" content="حاسبة مكافأة نهاية الخدمة" />
+  <meta property="og:description" content="احسب مكافأتك مجاناً وفق نظام العمل السعودي" />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="calculator.js"></script>
+  <!-- Cloudflare Web Analytics — replace YOUR_CF_TOKEN with token from Cloudflare Dashboard > Analytics > Web Analytics -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"YOUR_CF_TOKEN"}'></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #2563EB;
+      --sky:     #38BDF8;
+      --bg:      #F4F7FE;
+      --surface: #FFFFFF;
+      --text:    #0F172A;
+      --muted:   #64748B;
+      --border:  #E3EAF6;
+      --gold:    #F59E0B;
+    }
+    body {
+      font-family: 'IBM Plex Sans Arabic', system-ui, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .hero {
+      background: linear-gradient(160deg, #1D4ED8 0%, #2563EB 55%, #38BDF8 100%);
+      padding: 48px 24px 72px;
+      text-align: center;
+      color: #fff;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: .85rem;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      opacity: .88;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+    .calc-card {
+      background: var(--surface);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(37,99,235,.12);
+      padding: 28px 24px;
+      margin: -36px auto 32px;
+    }
+    .field-group { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 14px;
+      background: var(--bg);
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      transition: box-shadow .2s;
+    }
+    input { direction: ltr; text-align: right; }
+    input:focus, select:focus { box-shadow: 0 0 0 2px var(--blue); }
+    .duration-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .sublabel { font-size: .78rem; margin-bottom: 6px; }
+    .calc-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #2563EB 0%, #38BDF8 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 8px 20px rgba(37,99,235,.28);
+      transition: opacity .15s;
+    }
+    .calc-btn:hover { opacity: .92; }
+    .result-box {
+      display: none;
+      margin-top: 22px;
+      background: linear-gradient(160deg, #1D4ED8 0%, #2563EB 55%, #38BDF8 100%);
+      border-radius: 20px;
+      padding: 28px 24px;
+      color: #fff;
+      text-align: center;
+    }
+    .result-box.show { display: block; }
+    .result-label { font-size: .9rem; opacity: .85; margin-bottom: 8px; }
+    .result-amount { font-size: 2.6rem; font-weight: 700; line-height: 1; }
+    .result-note {
+      display: inline-block;
+      background: rgba(255,255,255,.18);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: .8rem;
+      margin-top: 12px;
+    }
+    .share-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 14px;
+      padding: 11px 16px;
+      border: 1px solid rgba(37,211,102,.35);
+      border-radius: 12px;
+      background: #ECFDF5;
+      color: #065F46;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .share-btn:hover { background: #D1FAE5; }
+    .cta-section { text-align: center; padding: 8px 0 40px; }
+    .cta-section h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+    .cta-section p { color: var(--muted); margin-bottom: 20px; font-size: .95rem; }
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--text);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 14px 26px;
+      font-weight: 700;
+      font-size: .95rem;
+      transition: background .15s;
+    }
+    .play-btn:hover { background: #1e293b; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      padding: 0 0 40px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(37,99,235,.07);
+    }
+    .feature-card .icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .feature-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
+    .feature-card p { font-size: .82rem; color: var(--muted); }
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 24px 20px;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--blue); }
+    @media (max-width: 400px) {
+      .calc-card { padding: 20px 14px; }
+      .result-amount { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <span class="badge">⚖️ وفق نظام العمل السعودي</span>
+    <h1>احسب مكافأة<br>نهاية الخدمة</h1>
+    <p>أداة مجانية دقيقة للموظفين في المملكة — استقالة أو إنهاء عقد</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="calc-card">
+    <div class="field-group">
+      <label for="salary">الراتب الأساسي (ر.س)</label>
+      <input id="salary" type="number" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
+    </div>
+
+    <div class="field-group">
+      <label>مدة الخدمة</label>
+      <div class="duration-row">
+        <div>
+          <label for="years" class="sublabel">سنوات</label>
+          <input id="years" type="number" placeholder="0" min="0" max="50" inputmode="numeric" />
+        </div>
+        <div>
+          <label for="months" class="sublabel">أشهر</label>
+          <input id="months" type="number" placeholder="0" min="0" max="11" inputmode="numeric" />
+        </div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="reason">سبب انتهاء الخدمة</label>
+      <select id="reason">
+        <option value="termination">إنهاء من صاحب العمل</option>
+        <option value="resignation">استقالة</option>
+      </select>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">احسب الآن</button>
+
+    <div class="result-box" id="result">
+      <div class="result-label">إجمالي مكافأة نهاية الخدمة</div>
+      <div class="result-amount" id="result-amount">0 ر.س</div>
+      <div class="result-note" id="result-note"></div>
+      <a class="share-btn" id="share-btn" href="#" onclick="shareResult(event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.559 4.122 1.533 5.853L0 24l6.295-1.51A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.001-1.368l-.36-.214-3.733.895.928-3.63-.235-.374A9.79 9.79 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+        شارك النتيجة عبر واتساب
+      </a>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="icon">⚖️</div>
+      <h3>دقة قانونية</h3>
+      <p>محتسبة وفق نظام العمل السعودي الأصلي</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📱</div>
+      <h3>تطبيق أوف لاين</h3>
+      <p>احسب بدون إنترنت في أي وقت</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🆓</div>
+      <h3>مجاني بالكامل</h3>
+      <p>بدون اشتراكات أو رسوم مخفية</p>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>حمّل التطبيق على هاتفك</h2>
+    <p>أسرع وأسهل — يعمل أوف لاين بالكامل</p>
+    <a href="https://play.google.com/store/apps/details?id=com.jamali.app01"
+       class="play-btn" target="_blank" rel="noopener noreferrer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3.18 23.76c.28.16.6.24.93.24.37 0 .75-.1 1.08-.3l14.53-8.4-3.17-3.17L3.18 23.76zM.5 1.26C.19 1.6 0 2.1 0 2.73v18.54c0 .63.19 1.13.5 1.47l.08.07 10.38-10.38v-.24L.58 1.19.5 1.26zM20.27 10.27l-2.62-1.51-3.54 3.54 3.54 3.54 2.65-1.53c.75-.44.75-1.6-.03-2.04zM4.11.54L18.64 8.94l-3.17 3.17L3.18.3A1.94 1.94 0 0 0 4.11.54z"/>
+      </svg>
+      Google Play — مجاناً
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>هذه الأداة للاسترشاد فقط وليست بديلاً عن الاستشارة القانونية. غير تابعة لأي جهة حكومية.</p>
+    <p style="margin-top:6px">المصدر الرسمي: <a href="https://hrsd.gov.sa" target="_blank" rel="noopener">وزارة الموارد البشرية — hrsd.gov.sa</a></p>
+  </div>
+</footer>
+
+<script>
+  var _shareText = '';
+
+  function calculate() {
+    var salary = parseFloat(document.getElementById('salary').value) || 0;
+    var years  = parseInt(document.getElementById('years').value)    || 0;
+    var months = parseInt(document.getElementById('months').value)   || 0;
+    var reason = document.getElementById('reason').value;
+
+    if (salary <= 0) { alert('أدخل راتباً صحيحاً أكبر من الصفر'); return; }
+
+    var r = calcEndOfService(salary, years, months, reason);
+
+    var fmt = function(n) {
+      return n.toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    var y = Math.floor(r.total), m = Math.round((r.total - y) * 12);
+    var period = m > 0 ? y + ' سنة و' + m + ' شهر' : y + ' سنة';
+
+    var note = '';
+    if (reason === 'resignation') {
+      if (r.total < 2)       note = 'لا يحق (أقل من سنتين)';
+      else if (r.total < 5)  note = 'ثلث المكافأة — ' + period;
+      else if (r.total < 10) note = 'ثلثا المكافأة — ' + period;
+      else                   note = 'مكافأة كاملة — ' + period;
+    } else {
+      note = 'مكافأة كاملة — ' + period;
+    }
+
+    document.getElementById('result-amount').textContent = fmt(r.result) + ' ر.س';
+    document.getElementById('result-note').textContent   = note;
+
+    _shareText = 'مكافأة نهاية خدمتي: ' + fmt(r.result) + ' ر.س\n'
+      + 'مدة الخدمة: ' + period + '\n'
+      + '#مكافأة_نهاية_الخدمة\n\n'
+      + 'احسب مكافأتك:\nhttps://play.google.com/store/apps/details?id=com.jamali.app01';
+
+    var box = document.getElementById('result');
+    box.classList.add('show');
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function shareResult(e) {
+    e.preventDefault();
+    if (!_shareText) return;
+    var url = 'https://wa.me/?text=' + encodeURIComponent(_shareText);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+name: Monthly Blog Post
+
+on:
+  schedule:
+    - cron: '0 5 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  blog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate blog post via Claude Haiku
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          export MONTH=$(date +%Y-%m)
+          export POST_DATE=$(date +%Y-%m-%d)
+          python3 << 'PYEOF'
+          import os, json, urllib.request
+
+          month     = os.environ['MONTH']
+          post_date = os.environ['POST_DATE']
+
+          prompt = (
+              'اكتب مقالاً للمدونة بالعربية لموقع حاسبة مكافأة نهاية الخدمة.\n\n'
+              'قواعد:\n'
+              '- اختر موضوعاً واحداً فريداً (دوّر بين: مكافأة الاستقالة، مكافأة العمال الأجانب،'
+              ' إنهاء العقد بدون سبب، حقوق العامل بعد انتهاء العقد المؤقت، نظام العمل السعودي 2024)\n'
+              '- الطول: 500-700 كلمة\n'
+              f'- ابدأ بـ YAML frontmatter (date: {post_date}، title، description، keywords)\n'
+              '- ثم # عنوان المقال كأول سطر بعد الـ frontmatter\n'
+              '- الكلمة المفتاحية الرئيسية في العنوان والفقرة الأولى والأخيرة\n'
+              '- أنهِ بـ CTA: "احسب مكافأتك مجاناً عبر '
+              '[تطبيق حاسبة مكافأة نهاية الخدمة]'
+              '(https://play.google.com/store/apps/details?id=com.jamali.app01)"\n'
+              '- Markdown فقط — بدون أي نص خارج الـ Markdown'
+          )
+
+          payload = json.dumps({
+              'model': 'claude-haiku-4-5-20251001',
+              'max_tokens': 2000,
+              'messages': [{'role': 'user', 'content': prompt}]
+          }).encode()
+
+          req = urllib.request.Request(
+              'https://api.anthropic.com/v1/messages',
+              data=payload,
+              headers={
+                  'x-api-key': os.environ['ANTHROPIC_API_KEY'],
+                  'anthropic-version': '2023-06-01',
+                  'content-type': 'application/json',
+              }
+          )
+          with urllib.request.urlopen(req, timeout=60) as r:
+              data = json.loads(r.read())
+
+          post = data['content'][0]['text'].strip()
+          if len(post) < 200:
+              raise ValueError(f'Post too short ({len(post)} chars) — empty response from Claude')
+
+          os.makedirs('landing/blog', exist_ok=True)
+          path = f'landing/blog/{month}.md'
+          with open(path, 'w') as f:
+              f.write(post)
+          print(f'Written: {path} ({len(post)} chars)')
+          PYEOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add landing/blog/
+          git diff --staged --quiet && echo "No changes, skipping" && exit 0
+          git commit -m "blog: $(date +%Y-%m) auto-generated post"
+          git push

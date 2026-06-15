@@ -1,0 +1,147 @@
+name: Weekly Social Posts
+
+on:
+  schedule:
+    - cron: '0 5 * * 0'
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: pip install tweepy requests -q
+
+      - name: Generate content via Claude Haiku
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, urllib.request, sys
+
+          prompt = (
+              'أنت مسوّق متخصص في قانون العمل السعودي.\n'
+              'اكتب محتوى أسبوعياً لتطبيق "حاسبة مكافأة نهاية الخدمة" على Google Play.\n\n'
+              'أرجع JSON array فقط — بدون أي نص خارجه:\n'
+              '[\n'
+              '  {"platform":"twitter","text":"..."},\n'
+              '  {"platform":"twitter","text":"..."},\n'
+              '  {"platform":"twitter","text":"..."},\n'
+              '  {"platform":"linkedin","text":"..."},\n'
+              '  {"platform":"linkedin","text":"..."}\n'
+              ']\n\n'
+              'قواعد صارمة:\n'
+              '- Twitter: أقل من 270 حرف (احتسب بدقة)\n'
+              '- LinkedIn: 400-1200 حرف، أسلوب احترافي مع تفاصيل قانونية\n'
+              '- اذكر في كل منشور: #مكافأة_نهاية_الخدمة\n'
+              '- نوّع الموضوعات: نصيحة قانونية / مثال حسابي / تذكير بحق / سؤال وجواب\n'
+              '- رابط التطبيق في منشور واحد فقط: https://play.google.com/store/apps/details?id=com.jamali.app01'
+          )
+
+          payload = json.dumps({
+              'model': 'claude-haiku-4-5-20251001',
+              'max_tokens': 2000,
+              'messages': [{'role': 'user', 'content': prompt}]
+          }).encode()
+
+          req = urllib.request.Request(
+              'https://api.anthropic.com/v1/messages',
+              data=payload,
+              headers={
+                  'x-api-key': os.environ['ANTHROPIC_API_KEY'],
+                  'anthropic-version': '2023-06-01',
+                  'content-type': 'application/json',
+              }
+          )
+          with urllib.request.urlopen(req, timeout=60) as r:
+              data = json.loads(r.read())
+
+          content = data['content'][0]['text'].strip()
+          posts = json.loads(content)
+          assert len(posts) == 5, f'Expected 5 posts, got {len(posts)}'
+
+          with open('/tmp/posts.json', 'w') as f:
+              json.dump(posts, f, ensure_ascii=False)
+          print(f'Generated {len(posts)} posts')
+          PYEOF
+
+      - name: Post to Twitter and LinkedIn
+        env:
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, sys, requests
+          import tweepy
+
+          with open('/tmp/posts.json') as f:
+              posts = json.load(f)
+
+          errors = []
+
+          tw_key = os.environ.get('TWITTER_API_KEY')
+          if tw_key:
+              client = tweepy.Client(
+                  consumer_key=tw_key,
+                  consumer_secret=os.environ['TWITTER_API_SECRET'],
+                  access_token=os.environ['TWITTER_ACCESS_TOKEN'],
+                  access_token_secret=os.environ['TWITTER_ACCESS_SECRET'],
+              )
+              for p in [p for p in posts if p['platform'] == 'twitter']:
+                  try:
+                      client.create_tweet(text=p['text'])
+                      print(f"Twitter ✓ ({len(p['text'])} chars)")
+                  except Exception as e:
+                      errors.append(f'Twitter: {e}')
+
+          li_token = os.environ.get('LINKEDIN_ACCESS_TOKEN')
+          if li_token:
+              headers = {
+                  'Authorization': f'Bearer {li_token}',
+                  'Content-Type': 'application/json',
+                  'X-Restli-Protocol-Version': '2.0.0',
+              }
+              me = requests.get('https://api.linkedin.com/v2/me', headers=headers)
+              if me.status_code == 401:
+                  errors.append('LinkedIn 401: token expired — refresh at LinkedIn Developer Portal every 55 days')
+              elif me.ok:
+                  author = f"urn:li:person:{me.json()['id']}"
+                  for p in [p for p in posts if p['platform'] == 'linkedin']:
+                      try:
+                          body = {
+                              'author': author,
+                              'lifecycleState': 'PUBLISHED',
+                              'specificContent': {
+                                  'com.linkedin.ugc.ShareContent': {
+                                      'shareCommentary': {'text': p['text']},
+                                      'shareMediaCategory': 'NONE',
+                                  }
+                              },
+                              'visibility': {'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'},
+                          }
+                          r = requests.post('https://api.linkedin.com/v2/ugcPosts',
+                                            headers=headers, json=body)
+                          if r.status_code in (200, 201):
+                              print(f"LinkedIn ✓ ({len(p['text'])} chars)")
+                          else:
+                              errors.append(f'LinkedIn {r.status_code}: {r.text[:150]}')
+                      except Exception as e:
+                          errors.append(f'LinkedIn: {e}')
+
+          if errors:
+              print('ERRORS:', file=sys.stderr)
+              for e in errors:
+                  print(f'  • {e}', file=sys.stderr)
+              bot = os.environ.get('TELEGRAM_BOT_TOKEN')
+              cid = os.environ.get('TELEGRAM_CHAT_ID')
+              if bot and cid:
+                  msg = '⚠️ Social posts — أخطاء هذا الأسبوع:\n' + '\n'.join(f'• {e}' for e in errors)
+                  requests.post(f'https://api.telegram.org/bot{bot}/sendMessage',
+                                json={'chat_id': cid, 'text': msg})
+              sys.exit(1)
+          PYEOF

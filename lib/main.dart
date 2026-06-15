@@ -782,10 +782,62 @@ class _ResultCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                _ShareButton(result: result, years: totalYears, fmt: fmt),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ShareButton extends StatelessWidget {
+  final double result, years;
+  final NumberFormat fmt;
+  const _ShareButton({required this.result, required this.years, required this.fmt});
+
+  Future<void> _share() async {
+    final y = years.floor();
+    final m = ((years - y) * 12).round();
+    final period = m > 0 ? '$y سنة و$m شهر' : '$y سنة';
+    final text = 'مكافأة نهاية خدمتي: ${fmt.format(result)} ر.س\n'
+        'مدة الخدمة: $period\n'
+        '#مكافأة_نهاية_الخدمة\n\n'
+        'احسب مكافأتك:\nhttps://play.google.com/store/apps/details?id=com.jamali.app01';
+    final uri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFFECFDF5),
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: () { _share(); },
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF25D366).withValues(alpha: 0.3)),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.share_rounded, color: Color(0xFF25D366), size: 18),
+              SizedBox(width: 8),
+              Text('شارك النتيجة عبر واتساب',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF065F46))),
+            ],
+          ),
+        ),
       ),
     );
   }
