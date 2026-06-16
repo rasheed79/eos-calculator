@@ -78,3 +78,4 @@ jobs:
           git diff --staged --quiet && echo "No changes, skipping" && exit 0
           git commit -m "blog: $(date +%Y-%m) auto-generated post"
           git push
+
