@@ -102,7 +102,11 @@ jobs:
                       client.create_tweet(text=p['text'])
                       print(f"Twitter ✓ ({len(p['text'])} chars)")
                   except Exception as e:
-                      errors.append(f'Twitter: {e}')
+                      err_str = str(e)
+                      if '402' in err_str or 'credits' in err_str.lower() or 'Payment' in err_str:
+                          print(f"Twitter ⚠ skipped (upgrade to Basic plan to enable): {err_str[:100]}")
+                      else:
+                          errors.append(f'Twitter: {e}')
 
           li_token = os.environ.get('LINKEDIN_ACCESS_TOKEN')
           if li_token:
