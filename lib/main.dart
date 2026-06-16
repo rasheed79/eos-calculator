@@ -816,7 +816,7 @@ class _ShareButton extends StatelessWidget {
       color: const Color(0xFFECFDF5),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        onTap: () { _share(); },
+        onTap: () async { await _share(); },
         borderRadius: BorderRadius.circular(14),
         child: Container(
           width: double.infinity,

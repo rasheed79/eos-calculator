@@ -59,7 +59,10 @@ jobs:
           with urllib.request.urlopen(req, timeout=60) as r:
               data = json.loads(r.read())
 
+          import re as _re
           post = data['content'][0]['text'].strip()
+          post = _re.sub(r'^```\w*\s*', '', post)
+          post = _re.sub(r'\s*```$', '', post).strip()
           if len(post) < 200:
               raise ValueError(f'Post too short ({len(post)} chars) — empty response from Claude')
 

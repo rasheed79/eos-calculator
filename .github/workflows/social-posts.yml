@@ -59,7 +59,7 @@ jobs:
           content = data['content'][0]['text'].strip()
           print(f'Raw response ({len(content)} chars): {content[:300]}')
           import re
-          m = re.search(r'\[.*\]', content, re.DOTALL)
+          m = re.search(r'\[.*?\]', content, re.DOTALL)
           if not m:
               raise ValueError(f'No JSON array in response: {content[:500]}')
           posts = json.loads(m.group())
