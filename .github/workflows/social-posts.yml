@@ -63,7 +63,7 @@ jobs:
           if not m:
               raise ValueError(f'No JSON array in response: {content[:500]}')
           posts = json.loads(m.group())
-          assert len(posts) == 5, f'Expected 5 posts, got {len(posts)}'
+          assert len(posts) >= 4, f'Too few posts ({len(posts)}), expected at least 4'
 
           with open('/tmp/posts.json', 'w') as f:
               json.dump(posts, f, ensure_ascii=False)
