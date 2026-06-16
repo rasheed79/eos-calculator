@@ -57,7 +57,12 @@ jobs:
               data = json.loads(r.read())
 
           content = data['content'][0]['text'].strip()
-          posts = json.loads(content)
+          print(f'Raw response ({len(content)} chars): {content[:300]}')
+          import re
+          m = re.search(r'\[.*\]', content, re.DOTALL)
+          if not m:
+              raise ValueError(f'No JSON array in response: {content[:500]}')
+          posts = json.loads(m.group())
           assert len(posts) == 5, f'Expected 5 posts, got {len(posts)}'
 
           with open('/tmp/posts.json', 'w') as f:
