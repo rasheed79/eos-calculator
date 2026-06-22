@@ -44,5 +44,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 info.txt
+security_info.txt
 .playwright-mcp/
 play-console.png

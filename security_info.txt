@@ -1,9 +1,0 @@
-معلومات توقيع تطبيق: App_01_End_of_Service
-
-اسم الحزمة (Package Name): com.jamali.app01
-اسم المفتاح (Key Alias): upload
-كلمة مرور المخزن (Store Password): Jamali2026!
-كلمة مرور المفتاح (Key Password): Jamali2026!
-ملف المفتاح: android/app/upload-keystore.jks
-
-ملاحظة: لا تشارك هذا الملف مع أحد، واحتفظ بنسخة منه خارج المشروع لتتمكن من تحديث التطبيق مستقبلاً في جوجل بلاي.
