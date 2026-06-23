@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-23T15:00:00Z",
+  "title": "Design System: حاسبة مكافأة نهاية الخدمة",
+  "extensions": {
+    "colorMeta": {
+      "primary":      { "role": "primary",   "displayName": "Institutional Blue", "canonical": "oklch(51% 0.22 262)", "tonalRamp": ["#0c2a8a","#1338b0","#1D4ED8","#2563EB","#3b82f6","#60a5fa","#93c5fd","#dbeafe"] },
+      "primary-deep": { "role": "primary",   "displayName": "Deep Blue",          "canonical": "oklch(44% 0.22 262)", "tonalRamp": ["#0c2a8a","#1338b0","#1D4ED8","#2563EB","#3b82f6","#60a5fa","#93c5fd","#dbeafe"] },
+      "sky":          { "role": "accent",    "displayName": "Sky",                "canonical": "oklch(76% 0.17 213)", "tonalRamp": ["#0369a1","#0284c7","#0ea5e9","#38BDF8","#7dd3fc","#bae6fd","#e0f2fe","#f0f9ff"] },
+      "bg":           { "role": "neutral",   "displayName": "Cool Mist",          "canonical": "oklch(97% 0.009 248)", "tonalRamp": ["#1e293b","#334155","#475569","#94a3b8","#cbd5e1","#e2e8f0","#F4F7FE","#ffffff"] },
+      "surface":      { "role": "neutral",   "displayName": "Pure White",         "canonical": "oklch(100% 0 0)",     "tonalRamp": ["#1e293b","#334155","#475569","#94a3b8","#cbd5e1","#e2e8f0","#f8fafc","#ffffff"] },
+      "ink":          { "role": "neutral",   "displayName": "Near Black",         "canonical": "oklch(13% 0.02 248)", "tonalRamp": ["#0F172A","#1e293b","#334155","#475569","#64748b","#94a3b8","#cbd5e1","#f1f5f9"] },
+      "muted":        { "role": "neutral",   "displayName": "Slate Muted",        "canonical": "oklch(41% 0.04 252)", "tonalRamp": ["#0F172A","#1e293b","#334155","#475569","#64748b","#94a3b8","#cbd5e1","#f1f5f9"] },
+      "gold":         { "role": "secondary", "displayName": "Result Gold",        "canonical": "oklch(76% 0.18 83)",  "tonalRamp": ["#78350f","#92400e","#b45309","#d97706","#F59E0B","#fbbf24","#fde68a","#fef3c7"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Hero heading only. The first thing the eye lands on." },
+      "headline": { "displayName": "Headline", "purpose": "SEO section headings. Breaks content into scannable chunks." },
+      "body":     { "displayName": "Body",     "purpose": "SEO explanatory paragraphs. High line-height for Arabic RTL readability." },
+      "label":    { "displayName": "Label",    "purpose": "Field labels, trust bar, badges. Bold so they read at .82rem." }
+    },
+    "shadows": [
+      { "name": "card",   "value": "0 8px 32px rgba(15,23,42,.08), 0 1px 4px rgba(15,23,42,.04)", "purpose": "calc-card and result containers only." },
+      { "name": "button", "value": "0 4px 14px rgba(15,23,42,.22)",                               "purpose": "Primary CTA button only. Heavier because it is the conversion point." },
+      { "name": "result", "value": "0 12px 30px rgba(37,99,235,.16)",                             "purpose": "Flutter app result card. Blue-tinted to connect the result to brand color." }
+    ],
+    "motion": [
+      { "name": "result-in", "value": "opacity 0→1, translateY 8px→0, 0.28s cubic-bezier(0.25,0,0,1)", "purpose": "Result box entrance after calculate click. The only page animation." },
+      { "name": "state-transition", "value": "0.18s ease", "purpose": "Input focus, hover states." },
+      { "name": "button-hover", "value": "0.2s cubic-bezier(0.25,0,0,1)", "purpose": "Button background color transitions." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "430px", "purpose": "Compact card padding (20px 14px). Covers all modern iPhones up to 15 Plus." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single conversion point. احسب الآن. Full width, prominent shadow.",
+      "html": "<button class=\"ds-btn-primary\">احسب الآن</button>",
+      "css": ".ds-btn-primary { width: 100%; padding: 16px; border: none; border-radius: 16px; background: #2563EB; color: #fff; font-family: 'Almarai', Arial, sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(15,23,42,.22); transition: background .2s cubic-bezier(0.25,0,0,1), transform .12s cubic-bezier(0.25,0,0,1); } .ds-btn-primary:hover { background: #1D4ED8; } .ds-btn-primary:active { transform: scale(.98); } .ds-btn-primary:focus-visible { outline: 3px solid #38BDF8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Play Store Button",
+      "kind": "button",
+      "refersTo": "button-play",
+      "description": "Secondary CTA to Google Play. Ink background signals authority without competing with primary.",
+      "html": "<a class=\"ds-btn-play\" href=\"#\">Google Play (مجاناً)</a>",
+      "css": ".ds-btn-play { display: inline-flex; align-items: center; gap: 10px; background: #0F172A; color: #fff; text-decoration: none; border-radius: 14px; padding: 14px 26px; font-family: 'Almarai', Arial, sans-serif; font-weight: 700; font-size: .92rem; transition: background .15s; } .ds-btn-play:hover { background: #1e293b; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Salary and duration fields. direction:ltr with text-align:right for Arabic number entry.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\">الراتب الأساسي (ر.س)</label><input class=\"ds-input\" type=\"number\" placeholder=\"0.00\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 8px; } .ds-label { font-family: 'Almarai', Arial, sans-serif; font-size: .82rem; font-weight: 700; color: #475569; } .ds-input { width: 100%; padding: 14px 16px; border: 1.5px solid #E3EAF6; border-radius: 14px; background: #F4F7FE; font-family: inherit; font-size: 1.05rem; font-weight: 700; color: #0F172A; direction: ltr; text-align: right; outline: none; transition: border-color .18s, box-shadow .18s; } .ds-input:focus-visible { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,.18); }"
+    },
+    {
+      "name": "Calculator Card",
+      "kind": "card",
+      "refersTo": "calc-card",
+      "description": "Floats -36px over the hero gradient. The main interaction surface.",
+      "html": "<div class=\"ds-calc-card\"><p>card content</p></div>",
+      "css": ".ds-calc-card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 8px 32px rgba(15,23,42,.08), 0 1px 4px rgba(15,23,42,.04); padding: 28px 24px; margin-top: -36px; }"
+    },
+    {
+      "name": "Result Box",
+      "kind": "card",
+      "refersTo": "result-box",
+      "description": "Appears after calculate. Gold amount on near-black. The payoff moment.",
+      "html": "<div class=\"ds-result\"><div class=\"ds-result-label\">إجمالي مكافأة نهاية الخدمة</div><div class=\"ds-result-amount\">22,500.00 ر.س</div><span class=\"ds-result-note\">مكافأة كاملة</span></div>",
+      "css": ".ds-result { background: #0F172A; border-radius: 20px; padding: 28px 24px; color: #fff; text-align: center; } .ds-result-label { font-size: .88rem; opacity: .7; margin-bottom: 8px; } .ds-result-amount { font-size: clamp(2.2rem, 8vw, 3rem); font-weight: 800; line-height: 1; color: #F59E0B; } .ds-result-note { display: inline-block; background: rgba(255,255,255,.10); border-radius: 100px; padding: 5px 16px; font-size: .82rem; margin-top: 12px; }"
+    },
+    {
+      "name": "Trust Badge",
+      "kind": "chip",
+      "refersTo": null,
+      "description": "Hero pill badge. Semi-transparent white on gradient. Single kicker — never repeated per section.",
+      "html": "<span class=\"ds-badge\">⚖️ وفق نظام العمل السعودي</span>",
+      "css": ".ds-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.28); border-radius: 100px; padding: 6px 18px; font-size: .82rem; color: #fff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "الدقة المؤتمنة",
+    "overview": "هذا النظام مصمم لموظف يصل من Google في لحظة توتر — يريد رقماً صحيحاً، الآن. \"الدقة المؤتمنة\" تعني أن كل قرار تصميمي يخدم هذه اللحظة: وضوح سريع، مصداقية هادئة، نتيجة واضحة. النظام يرفض الاتجاهين: لا ثقل حكومي، ولا مبالغة SaaS أمريكية.",
+    "keyCharacteristics": [
+      "اللون الأزرق (#2563EB) هو الصوت الوحيد للعلامة",
+      "الذهبي (#F59E0B) محجوز لنتيجة الحساب فقط",
+      "RTL عربي كامل مع Almarai",
+      "الكارت العائم فوق الـ hero (-36px) هو اللمسة التصميمية الوحيدة"
+    ],
+    "rules": [
+      { "name": "The Gold Scarcity Rule", "body": "الذهبي يظهر مرة واحدة في الصفحة: رقم المكافأة. إذا استُخدم في أي مكان آخر، فقد قيمته كإشارة.", "section": "colors" },
+      { "name": "The One Voice Rule", "body": "#2563EB هو صوت العلامة. لا يوجد لون ثانٍ يتنافس معه.", "section": "colors" },
+      { "name": "The Single Family Rule", "body": "Almarai فقط في كامل الصفحة. الخط الواحد بأوزان مختلفة أقوى من زوج متخاذل.", "section": "typography" },
+      { "name": "The Arabic Rhythm Rule", "body": "line-height 1.75 في النصوص الطويلة إلزامي في RTL.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "الصفحة مسطحة عدا ثلاثة عناصر: calc-card، result-box، الزر الأساسي.", "section": "elevation" }
+    ],
+    "dos": [
+      "استخدم #1D4ED8 (deep blue) لرؤوس الجداول — ليس #2563EB (contrast 3.93:1 فقط)",
+      "احتفظ بالذهبي حصرياً لرقم المكافأة",
+      "استخدم Almarai وحده بأوزان 400/700/800",
+      "direction: ltr; text-align: right لحقول الأرقام في RTL",
+      "text-wrap: balance على جميع العناوين"
+    ],
+    "donts": [
+      "لا تضع نصاً رمادياً على خلفية ملونة — استخدم درجة أغمق من لون الخلفية",
+      "لا تستخدم الذهبي تزيينياً أو في hover states",
+      "لا gradient text أو background-clip:text",
+      "لا badge/eyebrow فوق كل قسم — الـ badge الوحيد في الـ hero يكفي",
+      "لا بطاقات متطابقة بأيقونة + عنوان + نص",
+      "لا border-left ملونة أكثر من 1px كزخرفة",
+      "لا animation قبل تحميل المحتوى — result-in فقط بعد click",
+      "لا أوف لاين أو ترجمة حرفية — استخدم بدون إنترنت",
+      "لا ثقل حكومي ولا مبالغة SaaS أمريكية"
+    ]
+  }
+}

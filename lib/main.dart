@@ -100,10 +100,11 @@ class CalculatorScreen extends StatefulWidget {
 
 class _CalculatorScreenState extends State<CalculatorScreen>
     with SingleTickerProviderStateMixin {
-  final _formKey    = GlobalKey<FormState>();
-  final _salaryCtr  = TextEditingController();
-  final _yearsCtr   = TextEditingController();
-  final _monthsCtr  = TextEditingController();
+  final _formKey        = GlobalKey<FormState>();
+  final _salaryCtr      = TextEditingController();
+  final _allowancesCtr  = TextEditingController();
+  final _yearsCtr       = TextEditingController();
+  final _monthsCtr      = TextEditingController();
 
   String  _reason   = 'termination';
   double? _result;
@@ -173,14 +174,16 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   void _performCalculation() {
-    final salary = double.parse(_salaryCtr.text);
-    final years  = int.parse(_yearsCtr.text.isEmpty  ? '0' : _yearsCtr.text);
-    final months = int.parse(_monthsCtr.text.isEmpty ? '0' : _monthsCtr.text);
-    final total  = years + (months / 12.0);
+    final salary     = double.parse(_salaryCtr.text);
+    final allowances = double.tryParse(_allowancesCtr.text) ?? 0;
+    final wage       = salary + allowances;
+    final years      = int.parse(_yearsCtr.text.isEmpty  ? '0' : _yearsCtr.text);
+    final months     = int.parse(_monthsCtr.text.isEmpty ? '0' : _monthsCtr.text);
+    final total      = years + (months / 12.0);
 
     double base = total <= 5
-        ? total * (salary / 2)
-        : 5 * (salary / 2) + (total - 5) * salary;
+        ? total * (wage / 2)
+        : 5 * (wage / 2) + (total - 5) * wage;
 
     double final_ = base;
     if (_reason == 'resignation') {
@@ -214,6 +217,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   void dispose() {
     _animCtrl.dispose();
     _salaryCtr.dispose();
+    _allowancesCtr.dispose();
     _yearsCtr.dispose();
     _monthsCtr.dispose();
     _bannerAd?.dispose();
@@ -244,8 +248,14 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                 children: [
                   _SectionCard(
                     icon: Icons.payments_rounded,
-                    title: 'الراتب الأساسي',
-                    child: _AmountField(controller: _salaryCtr),
+                    title: 'الأجر الشهري',
+                    child: Column(
+                      children: [
+                        _AmountField(controller: _salaryCtr, label: 'الراتب الأساسي'),
+                        const SizedBox(height: 10),
+                        _AmountField(controller: _allowancesCtr, label: 'البدلات الثابتة (اختياري)', required: false),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   _SectionCard(
@@ -468,25 +478,36 @@ class _SectionCard extends StatelessWidget {
 
 class _AmountField extends StatelessWidget {
   final TextEditingController controller;
-  const _AmountField({required this.controller});
+  final String label;
+  final bool required;
+  const _AmountField({required this.controller, this.label = 'الراتب الأساسي', this.required = true});
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: _text),
-      decoration: InputDecoration(
-        hintText: '0.00',
-        hintStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: _muted.withValues(alpha: 0.5)),
-        suffixText: 'ر.س',
-        suffixStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _blue),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      ),
-      validator: (v) => (v == null || v.isEmpty || double.tryParse(v) == null || double.parse(v) <= 0)
-          ? 'أدخل راتباً صحيحاً'
-          : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _muted)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: _text),
+          decoration: InputDecoration(
+            hintText: '0.00',
+            hintStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w300, color: _muted.withValues(alpha: 0.5)),
+            suffixText: 'ر.س',
+            suffixStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _blue),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          ),
+          validator: required
+              ? (v) => (v == null || v.isEmpty || double.tryParse(v) == null || double.parse(v) <= 0)
+                  ? 'أدخل راتباً صحيحاً'
+                  : null
+              : null,
+        ),
+      ],
     );
   }
 }
