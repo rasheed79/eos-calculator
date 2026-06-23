@@ -17,7 +17,7 @@ const _goldLight   = Color(0xFFFEF3C7);
 const _bg          = Color(0xFFF4F7FE);
 const _surface     = Color(0xFFFFFFFF);
 const _text        = Color(0xFF0F172A);
-const _muted       = Color(0xFF64748B);
+const _muted       = Color(0xFF475569);
 const _border      = Color(0xFFE3EAF6);
 const _inputBg     = Color(0xFFF4F7FE);
 
@@ -110,6 +110,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   double? _result;
   double? _baseReward;
   double  _totalYears = 0;
+  double  _wage = 0;
 
   BannerAd?       _bannerAd;
   InterstitialAd? _interstitialAd;
@@ -177,9 +178,18 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     final salary     = double.parse(_salaryCtr.text);
     final allowances = double.tryParse(_allowancesCtr.text) ?? 0;
     final wage       = salary + allowances;
-    final years      = int.parse(_yearsCtr.text.isEmpty  ? '0' : _yearsCtr.text);
-    final months     = int.parse(_monthsCtr.text.isEmpty ? '0' : _monthsCtr.text);
+    final years      = int.tryParse(_yearsCtr.text)  ?? 0;
+    final months     = int.tryParse(_monthsCtr.text) ?? 0;
     final total      = years + (months / 12.0);
+
+    if (total == 0) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أدخل مدة الخدمة')),
+        );
+      }
+      return;
+    }
 
     double base = total <= 5
         ? total * (wage / 2)
@@ -200,10 +210,30 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       _result     = final_;
       _baseReward = base;
       _totalYears = total;
+      _wage       = wage;
       _calcCount++;
     });
-    _animCtrl.forward(from: 0);
+    if (mounted && MediaQuery.of(context).disableAnimations) {
+      _animCtrl.value = 1.0;
+    } else {
+      _animCtrl.forward(from: 0);
+    }
     if (_calcCount == 3 && !kIsWeb) _requestReview();
+  }
+
+  void _resetForm() {
+    _salaryCtr.clear();
+    _allowancesCtr.clear();
+    _yearsCtr.clear();
+    _monthsCtr.clear();
+    setState(() {
+      _result = null;
+      _baseReward = null;
+      _totalYears = 0;
+      _wage = 0;
+      _reason = 'termination';
+    });
+    _animCtrl.reset();
   }
 
   Future<void> _requestReview() async {
@@ -253,7 +283,12 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                       children: [
                         _AmountField(controller: _salaryCtr, label: 'الراتب الأساسي'),
                         const SizedBox(height: 10),
-                        _AmountField(controller: _allowancesCtr, label: 'البدلات الثابتة (اختياري)', required: false),
+                        _AmountField(
+                          controller: _allowancesCtr,
+                          label: 'البدلات الثابتة (اختياري)',
+                          required: false,
+                          tooltip: 'تشمل: بدل السكن، المواصلات، والبدلات الشهرية الثابتة.\nلا تشمل: العمولات، الحوافز، والمكافآت المتغيرة (م. 86).',
+                        ),
                       ],
                     ),
                   ),
@@ -291,9 +326,17 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                           base: _baseReward!,
                           years: _totalYears,
                           reason: _reason,
+                          wage: _wage,
                           fmt: fmt,
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: _resetForm,
+                      icon: const Icon(Icons.refresh_rounded, size: 16, color: _blue),
+                      label: const Text('حساب جديد',
+                          style: TextStyle(color: _blue, fontSize: 13, fontWeight: FontWeight.w600)),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -480,26 +523,39 @@ class _AmountField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool required;
-  const _AmountField({required this.controller, this.label = 'الراتب الأساسي', this.required = true});
+  final String? tooltip;
+  const _AmountField({required this.controller, this.label = 'الراتب الأساسي', this.required = true, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _muted)),
+        Row(
+          children: [
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _muted)),
+            if (tooltip != null) ...[
+              const SizedBox(width: 4),
+              Tooltip(
+                message: tooltip!,
+                triggerMode: TooltipTriggerMode.tap,
+                child: const Icon(Icons.info_outline_rounded, size: 14, color: _muted),
+              ),
+            ],
+          ],
+        ),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: _text),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: '0.00',
-            hintStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w300, color: _muted.withValues(alpha: 0.5)),
+            hintStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w300, color: _muted),
             suffixText: 'ر.س',
-            suffixStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _blue),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            suffixStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _blue),
+            contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           ),
           validator: required
               ? (v) => (v == null || v.isEmpty || double.tryParse(v) == null || double.parse(v) <= 0)
@@ -531,10 +587,10 @@ class _DurationField extends StatelessWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: _text),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: '0',
-            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: _muted.withValues(alpha: 0.4)),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            hintStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: _muted),
+            contentPadding: EdgeInsets.symmetric(vertical: 16),
           ),
           validator: (v) {
             if (v == null || v.isEmpty) return null;
@@ -680,13 +736,14 @@ class _CalcButton extends StatelessWidget {
 // ── Result Card ──────────────────────────────────────────────────────────────
 
 class _ResultCard extends StatelessWidget {
-  final double result, base, totalYears;
+  final double result, base, totalYears, wage;
   final String reason;
   final NumberFormat fmt;
 
   const _ResultCard({
     required this.result, required this.base,
-    required double years, required this.reason, required this.fmt,
+    required double years, required this.reason,
+    required this.wage, required this.fmt,
   }) : totalYears = years;
 
   String get _reductionLabel {
@@ -741,13 +798,19 @@ class _ResultCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.16),
+                    color: result == 0
+                        ? const Color(0xFFDC2626).withValues(alpha: 0.22)
+                        : Colors.white.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle_rounded, color: Colors.white, size: 14),
+                      Icon(
+                        result == 0 ? Icons.warning_amber_rounded : Icons.check_circle_rounded,
+                        color: result == 0 ? const Color(0xFFFCA5A5) : Colors.white,
+                        size: 14,
+                      ),
                       const SizedBox(width: 6),
                       Text(_reductionLabel,
                           style: const TextStyle(
@@ -764,10 +827,17 @@ class _ResultCard extends StatelessWidget {
             child: Column(
               children: [
                 _BreakdownRow(
+                  label: 'الأجر الأخير',
+                  value: '${fmt.format(wage)} ر.س',
+                  icon: Icons.payments_rounded,
+                  color: _blue,
+                ),
+                const SizedBox(height: 8),
+                _BreakdownRow(
                   label: 'المكافأة الأساسية',
                   value: '${fmt.format(base)} ر.س',
                   icon: Icons.functions_rounded,
-                  color: _blue,
+                  color: _muted,
                 ),
                 const SizedBox(height: 8),
                 _BreakdownRow(
